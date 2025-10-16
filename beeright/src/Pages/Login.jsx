@@ -7,6 +7,10 @@ function Login() {
   const handleBackToHome = () => {
     navigate('/');
   };
+  const handleRegister = () => {
+  navigate('/signup');
+  };
+
 
   
   const handleLogin = (e) => {
@@ -21,7 +25,7 @@ function Login() {
 
         <div className="button-group">
           <button className="active">Login</button>
-          <button>Register</button>
+          <button onClick={handleRegister}>Register</button>
         </div>
 
         <form className="login-form" onSubmit={handleLogin}>
@@ -41,8 +45,9 @@ function Login() {
           </button>
 
           <p className="signup-text">
-            Don't have an account? <a href="#">Sign Up</a>
+            Don't have an account? <a href="#" onClick={handleRegister}>Sign Up</a>
           </p>
+
 
           {/* Back to home */}
           <button

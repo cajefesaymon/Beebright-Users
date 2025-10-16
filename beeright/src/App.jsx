@@ -3,6 +3,7 @@ import { Routes, Route, NavLink, useNavigate, useLocation } from "react-router-d
 import Home from "./Pages/Home.jsx";
 import Dashboard from "./Pages/Dashboard.jsx";
 import Login from "./Pages/Login.jsx";
+import Signup from "./Pages/Signup.jsx";
 
 export default function App() {
   const location = useLocation();
@@ -14,6 +15,7 @@ export default function App() {
       <Routes>
         <Route path="/" element={<Home />} />
         <Route path="/login" element={<Login />} />
+        <Route path="/Signup" element={<Signup />} />
         <Route path="/dashboard" element={<Dashboard />} />
       </Routes>
     </>
