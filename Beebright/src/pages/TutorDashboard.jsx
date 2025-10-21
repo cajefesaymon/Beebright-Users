@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { useAuth } from '../context/AuthContext';
 import Sidebar from '../components/Sidebar';
 import Card, { StatCard } from '../components/Card';
-import { Home, Users, Calendar, FileText, Clock, ChevronRight } from 'lucide-react';
+import { Home, Users, Calendar, FileText, Clock, ChevronRight, Brain } from 'lucide-react';
 
 const TutorDashboard = ({ onLogout }) => {
   const { user } = useAuth();
@@ -12,7 +12,8 @@ const TutorDashboard = ({ onLogout }) => {
     { id: 'home', icon: Home, label: 'Dashboard', color: 'text-primary-500' },
     { id: 'classes', icon: Calendar, label: 'My Classes', color: 'text-blue-500' },
     { id: 'students', icon: Users, label: 'My Students', color: 'text-green-500' },
-    { id: 'reports', icon: FileText, label: 'Reports', color: 'text-purple-500' }
+    { id: 'reports', icon: FileText, label: 'Reports', color: 'text-purple-500' },
+    { id: 'ai', icon: Brain, label: 'AI Assistant', color: 'text-orange-500' }
   ];
 
   const todayClasses = [
@@ -184,6 +185,117 @@ const TutorDashboard = ({ onLogout }) => {
     </Card>
   );
 
+  const AIAssistant = () => {
+    const [prompt, setPrompt] = useState('');
+    const [aiResponse, setAiResponse] = useState('');
+    const [isLoading, setIsLoading] = useState(false);
+
+    const handleAskAI = async () => {
+      if (!prompt.trim()) return;
+      
+      setIsLoading(true);
+      // Simulate AI response
+      setTimeout(() => {
+        const responses = [
+          `Based on your question about "${prompt}", I recommend breaking down the concept into smaller, more digestible parts. Consider using visual aids and real-world examples to help students grasp the material better.`,
+          `For "${prompt}", try incorporating hands-on activities and group discussions. Research shows that active learning improves retention by up to 50%.`,
+          `Regarding "${prompt}", I suggest differentiating your instruction to accommodate various learning styles. Provide multiple ways for students to engage with the content.`,
+          `For "${prompt}", consider using formative assessments to gauge understanding throughout the lesson. This will help you adjust your teaching in real-time.`
+        ];
+        setAiResponse(responses[Math.floor(Math.random() * responses.length)]);
+        setIsLoading(false);
+      }, 1500);
+    };
+
+    const quickPrompts = [
+      "How can I improve student engagement?",
+      "Lesson plan ideas for struggling students",
+      "Classroom management strategies",
+      "Differentiated instruction techniques"
+    ];
+
+    return (
+      <div className="space-y-6">
+        <div className="bg-gradient-to-r from-orange-500 to-red-500 rounded-3xl p-8 text-white">
+          <h1 className="text-3xl font-display font-bold mb-2">AI Teaching Assistant 🤖</h1>
+          <p className="text-lg opacity-90">Get personalized teaching advice and lesson planning help</p>
+        </div>
+
+        <div className="grid md:grid-cols-2 gap-6">
+          <Card>
+            <h2 className="font-display font-bold text-2xl text-neutral-900 mb-4">Ask AI Assistant</h2>
+            <div className="space-y-4">
+              <textarea
+                value={prompt}
+                onChange={(e) => setPrompt(e.target.value)}
+                placeholder="Ask me anything about teaching strategies, lesson planning, classroom management..."
+                className="w-full h-32 p-4 border-2 border-neutral-200 rounded-xl resize-none focus:outline-none focus:border-orange-500"
+              />
+              <button
+                onClick={handleAskAI}
+                disabled={isLoading}
+                className="w-full bg-gradient-to-r from-orange-500 to-red-500 text-white py-3 rounded-xl font-semibold hover:shadow-lg transition disabled:opacity-50"
+              >
+                {isLoading ? 'Thinking...' : 'Ask AI Assistant'}
+              </button>
+            </div>
+          </Card>
+
+          <Card>
+            <h2 className="font-display font-bold text-2xl text-neutral-900 mb-4">Quick Prompts</h2>
+            <div className="space-y-3">
+              {quickPrompts.map((quickPrompt, index) => (
+                <button
+                  key={index}
+                  onClick={() => setPrompt(quickPrompt)}
+                  className="w-full text-left p-4 rounded-xl bg-orange-50 border-2 border-orange-200 hover:shadow-md transition"
+                >
+                  <div className="font-semibold text-neutral-900">{quickPrompt}</div>
+                </button>
+              ))}
+            </div>
+          </Card>
+        </div>
+
+        {aiResponse && (
+          <Card>
+            <h2 className="font-display font-bold text-2xl text-neutral-900 mb-4 flex items-center gap-2">
+              <Brain className="text-orange-500" />
+              AI Response
+            </h2>
+            <div className="p-6 bg-gradient-to-r from-orange-50 to-red-50 rounded-xl border-2 border-orange-200">
+              <p className="text-neutral-700 leading-relaxed">{aiResponse}</p>
+            </div>
+          </Card>
+        )}
+
+        <div className="grid md:grid-cols-3 gap-6">
+          <Card>
+            <div className="text-center p-6">
+              <div className="text-4xl mb-3">🎯</div>
+              <h3 className="font-bold text-neutral-900 mb-2">Lesson Planning</h3>
+              <p className="text-sm text-neutral-600">Get AI-generated lesson plans and activity ideas</p>
+            </div>
+          </Card>
+          <Card>
+            <div className="text-center p-6">
+              <div className="text-4xl mb-3">📊</div>
+              <h3 className="font-bold text-neutral-900 mb-2">Student Analysis</h3>
+              <p className="text-sm text-neutral-600">Understand student performance patterns</p>
+            </div>
+          </Card>
+          <Card>
+            <div className="text-center p-6">
+              <div className="text-4xl mb-3">💡</div>
+              <h3 className="font-bold text-neutral-900 mb-2">Teaching Strategies</h3>
+              <p className="text-sm text-neutral-600">Personalized teaching recommendations</p>
+            </div>
+          </Card>
+        </div>
+      </div>
+    );
+  };
+
   return (
     <div className="bg-gradient-to-br from-neutral-50 to-neutral-100 min-h-screen">
       <Sidebar 
@@ -198,6 +310,7 @@ const TutorDashboard = ({ onLogout }) => {
         {activeTab === 'classes' && <Classes />}
         {activeTab === 'students' && <Students />}
         {activeTab === 'reports' && <Reports />}
+        {activeTab === 'ai' && <AIAssistant />}
       </div>
     </div>
   );

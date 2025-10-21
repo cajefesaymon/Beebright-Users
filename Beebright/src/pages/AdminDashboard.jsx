@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { useAuth } from '../context/AuthContext';
 import Sidebar from '../components/Sidebar';
 import Card, { StatCard } from '../components/Card';
-import { Home, Users as UsersIcon, DollarSign, BookOpen, Settings, Bell, Check, X, Mail, Phone, User, Shield, Edit2, Trash2, Plus } from 'lucide-react';
+import { Home, Users as UsersIcon, DollarSign, BookOpen, Settings, Bell, Check, X, Mail, Phone, User, Shield, Edit2, Trash2, Plus, Brain } from 'lucide-react';
 
 const AdminDashboard = ({ onLogout }) => {
   const { user } = useAuth();
@@ -95,6 +95,7 @@ const AdminDashboard = ({ onLogout }) => {
     { id: 'tutors', icon: BookOpen, label: 'Tutors', color: 'text-purple-500' },
     { id: 'payments', icon: DollarSign, label: 'Payments', color: 'text-purple-500' },
     { id: 'announcements', icon: Bell, label: 'Announcements', color: 'text-green-500' },
+    { id: 'ai', icon: Brain, label: 'AI Assistant', color: 'text-indigo-500' },
     { id: 'settings', icon: Settings, label: 'Settings', color: 'text-neutral-500' }
   ];
 
@@ -928,6 +929,250 @@ const AdminDashboard = ({ onLogout }) => {
     </Card>
   );
 
+  const AIAssistant = () => {
+    const [prompt, setPrompt] = useState('');
+    const [aiResponse, setAiResponse] = useState('');
+    const [isLoading, setIsLoading] = useState(false);
+    const [selectedCategory, setSelectedCategory] = useState('analytics');
+
+    const handleAskAI = async () => {
+      if (!prompt.trim()) return;
+      
+      setIsLoading(true);
+      // Simulate AI response
+      setTimeout(() => {
+        const responses = {
+          analytics: [
+            `Based on your data, I recommend focusing on student retention strategies. Your current enrollment rate is strong, but consider implementing personalized follow-ups for students who haven't re-enrolled.`,
+            `Your revenue analysis shows consistent growth in Math and Science subjects. Consider expanding your English program to capture more market share.`,
+            `Student performance data indicates that group study sessions could improve overall scores by 15-20% based on similar tutorial centers.`
+          ],
+          operations: [
+            `For operational efficiency, consider implementing automated enrollment reminders. This could reduce manual follow-up time by 40%.`,
+            `Your current tutor-to-student ratio is optimal. Consider cross-training tutors in multiple subjects to handle schedule fluctuations.`,
+            `Based on enrollment patterns, peak hours are 3-6 PM. Consider adding more classes during these times to maximize capacity.`
+          ],
+          strategy: [
+            `Strategic recommendation: Expand to neighboring cities within the next 6 months. Market analysis shows high demand in those areas.`,
+            `Consider introducing specialized test prep programs for college entrance exams. This could increase revenue by 25-30%.`,
+            `Partnership with local schools could boost enrollment by 15%. Focus on schools within 5km radius first.`
+          ]
+        };
+        
+        const categoryResponses = responses[selectedCategory] || responses.analytics;
+        setAiResponse(categoryResponses[Math.floor(Math.random() * categoryResponses.length)]);
+        setIsLoading(false);
+      }, 1500);
+    };
+
+    const quickPrompts = {
+      analytics: [
+        "Analyze student performance trends",
+        "Revenue growth recommendations",
+        "Enrollment pattern analysis"
+      ],
+      operations: [
+        "Improve operational efficiency",
+        "Tutor scheduling optimization",
+        "Resource allocation suggestions"
+      ],
+      strategy: [
+        "Business expansion opportunities",
+        "Competitive analysis insights",
+        "Marketing strategy improvements"
+      ]
+    };
+
+    const aiFeatures = [
+      {
+        icon: "📊",
+        title: "Predictive Analytics",
+        description: "Forecast enrollment trends and student performance"
+      },
+      {
+        icon: "💰",
+        title: "Revenue Optimization",
+        description: "AI-powered pricing and package recommendations"
+      },
+      {
+        icon: "👥",
+        title: "Student Retention",
+        description: "Identify at-risk students and suggest interventions"
+      },
+      {
+        icon: "📈",
+        title: "Growth Strategy",
+        description: "Data-driven expansion and marketing insights"
+      },
+      {
+        icon: "⏰",
+        title: "Resource Planning",
+        description: "Optimize tutor schedules and classroom utilization"
+      },
+      {
+        icon: "🎯",
+        title: "Personalized Learning",
+        description: "AI-generated study plans and progress tracking"
+      }
+    ];
+
+    return (
+      <div className="space-y-6">
+        <div className="bg-gradient-to-r from-indigo-500 to-purple-600 rounded-3xl p-8 text-white">
+          <h1 className="text-3xl font-display font-bold mb-2">AI Business Assistant 🤖</h1>
+          <p className="text-lg opacity-90">Get data-driven insights and strategic recommendations for your tutorial center</p>
+        </div>
+
+        <div className="grid md:grid-cols-3 gap-6">
+          <Card>
+            <h2 className="font-display font-bold text-2xl text-neutral-900 mb-4">Ask AI Assistant</h2>
+            <div className="space-y-4">
+              <div className="flex gap-2 mb-4">
+                {['analytics', 'operations', 'strategy'].map((category) => (
+                  <button
+                    key={category}
+                    onClick={() => setSelectedCategory(category)}
+                    className={`px-3 py-2 rounded-lg text-sm font-semibold transition ${
+                      selectedCategory === category
+                        ? 'bg-indigo-500 text-white'
+                        : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+                    }`}
+                  >
+                    {category.charAt(0).toUpperCase() + category.slice(1)}
+                  </button>
+                ))}
+              </div>
+              
+              <textarea
+                value={prompt}
+                onChange={(e) => setPrompt(e.target.value)}
+                placeholder={`Ask me anything about ${selectedCategory}...`}
+                className="w-full h-32 p-4 border-2 border-neutral-200 rounded-xl resize-none focus:outline-none focus:border-indigo-500"
+              />
+              
+              <div className="space-y-2">
+                <h4 className="font-semibold text-neutral-700">Quick Prompts:</h4>
+                {quickPrompts[selectedCategory].map((quickPrompt, index) => (
+                  <button
+                    key={index}
+                    onClick={() => setPrompt(quickPrompt)}
+                    className="w-full text-left p-3 rounded-lg bg-indigo-50 border-2 border-indigo-200 hover:shadow-md transition text-sm"
+                  >
+                    {quickPrompt}
+                  </button>
+                ))}
+              </div>
+              
+              <button
+                onClick={handleAskAI}
+                disabled={isLoading}
+                className="w-full bg-gradient-to-r from-indigo-500 to-purple-500 text-white py-3 rounded-xl font-bold hover:shadow-lg transition disabled:opacity-50"
+              >
+                {isLoading ? 'Analyzing...' : 'Get AI Insights'}
+              </button>
+            </div>
+          </Card>
+
+          <div className="md:col-span-2">
+            <Card>
+              <h2 className="font-display font-bold text-2xl text-neutral-900 mb-4 flex items-center gap-2">
+                <Brain className="text-indigo-500" />
+                AI Response
+              </h2>
+              {aiResponse ? (
+                <div className="p-6 bg-gradient-to-r from-indigo-50 to-purple-50 rounded-xl border-2 border-indigo-200">
+                  <p className="text-neutral-700 leading-relaxed">{aiResponse}</p>
+                  <div className="mt-4 p-3 bg-white rounded-lg border border-indigo-100">
+                    <div className="text-xs font-semibold text-indigo-700 uppercase mb-1">AI Suggestions</div>
+                    <ul className="text-sm text-neutral-600 space-y-1">
+                      <li>• Implement within 2-4 weeks for optimal results</li>
+                      <li>• Monitor key metrics for 30 days</li>
+                      <li>• Schedule follow-up analysis</li>
+                    </ul>
+                  </div>
+                </div>
+              ) : (
+                <div className="text-center py-12 text-neutral-500">
+                  <div className="text-6xl mb-4">🤖</div>
+                  <p>Ask a question to get AI-powered insights for your tutorial center</p>
+                </div>
+              )}
+            </Card>
+          </div>
+        </div>
+
+        <Card>
+          <h2 className="font-display font-bold text-2xl text-neutral-900 mb-6">AI-Powered Features</h2>
+          <div className="grid md:grid-cols-3 gap-4">
+            {aiFeatures.map((feature, index) => (
+              <div key={index} className="border-2 border-neutral-100 rounded-xl p-6 hover:shadow-md transition">
+                <div className="text-4xl mb-3">{feature.icon}</div>
+                <h3 className="font-bold text-neutral-900 mb-2">{feature.title}</h3>
+                <p className="text-sm text-neutral-600">{feature.description}</p>
+                <button className="mt-4 text-indigo-600 hover:text-indigo-700 font-semibold text-sm">
+                  Explore →
+                </button>
+              </div>
+            ))}
+          </div>
+        </Card>
+
+        <div className="grid md:grid-cols-2 gap-6">
+          <Card>
+            <h3 className="font-bold text-neutral-900 mb-4">Recent AI Insights</h3>
+            <div className="space-y-3">
+              <div className="p-3 bg-green-50 rounded-lg border border-green-200">
+                <div className="font-semibold text-green-700">High Potential</div>
+                <div className="text-sm text-neutral-600">Math program shows 45% growth potential</div>
+              </div>
+              <div className="p-3 bg-blue-50 rounded-lg border border-blue-200">
+                <div className="font-semibold text-blue-700">Optimization</div>
+                <div className="text-sm text-neutral-600">Classroom utilization can improve by 22%</div>
+              </div>
+              <div className="p-3 bg-orange-50 rounded-lg border border-orange-200">
+                <div className="font-semibold text-orange-700">Alert</div>
+                <div className="text-sm text-neutral-600">3 students at risk of dropping out</div>
+              </div>
+            </div>
+          </Card>
+
+          <Card>
+            <h3 className="font-bold text-neutral-900 mb-4">AI Performance Metrics</h3>
+            <div className="space-y-4">
+              <div>
+                <div className="flex justify-between text-sm mb-1">
+                  <span>Enrollment Prediction Accuracy</span>
+                  <span className="font-semibold">94%</span>
+                </div>
+                <div className="w-full bg-gray-200 rounded-full h-2">
+                  <div className="bg-green-500 h-2 rounded-full" style={{ width: '94%' }}></div>
+                </div>
+              </div>
+              <div>
+                <div className="flex justify-between text-sm mb-1">
+                  <span>Revenue Forecast Accuracy</span>
+                  <span className="font-semibold">89%</span>
+                </div>
+                <div className="w-full bg-gray-200 rounded-full h-2">
+                  <div className="bg-blue-500 h-2 rounded-full" style={{ width: '89%' }}></div>
+                </div>
+              </div>
+              <div>
+                <div className="flex justify-between text-sm mb-1">
+                  <span>Student Success Prediction</span>
+                  <span className="font-semibold">91%</span>
+                </div>
+                <div className="w-full bg-gray-200 rounded-full h-2">
+                  <div className="bg-purple-500 h-2 rounded-full" style={{ width: '91%' }}></div>
+                </div>
+              </div>
+            </div>
+          </Card>
+        </div>
+      </div>
+    );
+  };
+
   return (
     <div className="bg-gradient-to-br from-neutral-50 to-neutral-100 min-h-screen">
       <Sidebar 
@@ -997,6 +1242,7 @@ const AdminDashboard = ({ onLogout }) => {
             </div>
           </Card>
         )}
+        {activeTab === 'ai' && <AIAssistant />}
         {activeTab === 'settings' && (
           <Card>
             <h2 className="font-display font-bold text-2xl text-neutral-900 mb-6">System Settings ⚙️</h2>
