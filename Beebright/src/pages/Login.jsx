@@ -4,7 +4,7 @@ import { useAuth } from '../context/AuthContext';
 import { Eye, EyeOff, Mail, Lock, ArrowLeft } from 'lucide-react';
 
 const Login = ({ onBack }) => {
-  const { login } = useAuth();
+  const { login, showNotification } = useAuth();
   const [formData, setFormData] = useState({
     email: '',
     password: ''
@@ -86,6 +86,8 @@ const Login = ({ onBack }) => {
         grade: user.grade,
         avatar: user.avatar
       });
+
+      showNotification('Logged in successfully', 'success');
 
       setIsLoading(false);
     }, 1000);

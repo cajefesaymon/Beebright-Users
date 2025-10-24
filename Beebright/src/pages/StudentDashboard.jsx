@@ -1,7 +1,15 @@
+// src/pages/StudentDashboard.jsx
 import React, { useState } from 'react';
-import { LogOut, Home, Brain, BookOpen, TrendingUp, Award } from 'lucide-react';
+import { LogOut, Home, Brain, BookOpen, TrendingUp, Award, Calendar, ClipboardCheck, BarChart3 } from 'lucide-react';
 
-// Sidebar Component (Integrated)
+// Card Component
+const Card = ({ children, className = '' }) => (
+  <div className={`bg-white rounded-2xl shadow-sm border-2 border-neutral-100 p-6 ${className}`}>
+    {children}
+  </div>
+);
+
+// Sidebar Component
 const Sidebar = ({ activeTab, onTabChange, onLogout, student }) => {
   const safeStudent = {
     avatar: student?.avatar || '👨‍🎓',
@@ -12,17 +20,15 @@ const Sidebar = ({ activeTab, onTabChange, onLogout, student }) => {
   const studentMenuItems = [
     {
       id: 'overview',
-      label: 'Overview',
+      label: 'Dashboard',
       icon: Home,
       color: 'text-blue-500',
-      description: 'Your learning dashboard'
     },
     {
       id: 'ai',
       label: 'AI Tutor',
       icon: Brain,
       color: 'text-purple-500',
-      description: 'Get instant help',
       badge: 'NEW'
     },
     {
@@ -30,21 +36,24 @@ const Sidebar = ({ activeTab, onTabChange, onLogout, student }) => {
       label: 'My Classes',
       icon: BookOpen,
       color: 'text-green-500',
-      description: 'View your classes'
     },
     {
-      id: 'progress',
-      label: 'My Progress',
-      icon: TrendingUp,
+      id: 'grades',
+      label: 'My Grades',
+      icon: BarChart3,
       color: 'text-orange-500',
-      description: 'Track your learning'
+    },
+    {
+      id: 'attendance',
+      label: 'Attendance',
+      icon: ClipboardCheck,
+      color: 'text-cyan-500',
     },
     {
       id: 'badges',
       label: 'My Badges',
       icon: Award,
       color: 'text-yellow-500',
-      description: 'Achievements earned'
     }
   ];
 
@@ -53,99 +62,56 @@ const Sidebar = ({ activeTab, onTabChange, onLogout, student }) => {
       {/* Logo & Student Info */}
       <div className="p-6 border-b-2 border-neutral-100">
         <div className="flex items-center gap-3 mb-4">
-          <div className="w-12 h-12 bg-gradient-to-r from-yellow-400 to-orange-400 rounded-2xl flex items-center justify-center text-white font-bold text-lg">
+          <div className="w-12 h-12 bg-gradient-to-r from-yellow-400 to-orange-400 rounded-xl flex items-center justify-center text-2xl">
             🐝
           </div>
-          <span className="font-display font-bold text-2xl bg-gradient-to-r from-blue-500 to-purple-500 bg-clip-text text-transparent">
+          <span className="font-display font-bold text-2xl text-neutral-900">
             BeeBright
           </span>
         </div>
-        <div className="bg-gradient-to-r from-blue-50 to-purple-50 p-4 rounded-2xl border-2 border-white shadow-sm">
+        <div className="bg-gradient-to-r from-blue-50 to-purple-50 p-4 rounded-xl border-2 border-blue-100">
           <div className="flex items-center gap-3">
-            <div className="text-3xl">👨‍🎓</div>
+            <div className="text-3xl">{safeStudent.avatar}</div>
             <div className="flex-1 min-w-0">
-              <div className="font-bold text-neutral-900 truncate text-lg">{safeStudent.name}</div>
-              <div className="text-sm text-neutral-600 flex items-center gap-1">
-                <span className="text-yellow-500">⭐</span>
-                Student Profile
-              </div>
+              <div className="font-bold text-neutral-900 truncate">{safeStudent.name}</div>
+              <div className="text-sm text-neutral-600">Student</div>
             </div>
           </div>
         </div>
       </div>
 
-      {/* Student Menu Items */}
+      {/* Menu Items */}
       <nav className="flex-1 p-4 overflow-y-auto">
-        <div className="space-y-2">
+        <div className="space-y-1">
           {studentMenuItems.map((item) => (
             <button
               key={item.id}
               onClick={() => onTabChange(item.id)}
-              className={`w-full flex items-start gap-3 p-4 rounded-2xl transition-all duration-200 group text-left ${
+              className={`w-full flex items-center gap-3 p-3 rounded-xl transition-all text-left ${
                 activeTab === item.id
-                  ? 'bg-gradient-to-r from-blue-100 to-purple-100 border-2 border-blue-200 shadow-lg transform scale-105'
-                  : 'bg-white border-2 border-transparent hover:border-blue-100 hover:shadow-md hover:bg-blue-50'
+                  ? 'bg-primary-50 text-primary-600 font-semibold'
+                  : 'text-neutral-700 hover:bg-neutral-50'
               }`}
             >
-              <div className={`p-2 rounded-lg ${
-                activeTab === item.id 
-                  ? 'bg-white shadow-sm' 
-                  : 'bg-gray-50 group-hover:bg-white'
-              }`}>
-                <item.icon 
-                  className={`${item.color} ${
-                    activeTab === item.id ? 'scale-110' : 'group-hover:scale-110'
-                  } transition-transform duration-200`} 
-                  size={20} 
-                />
-              </div>
-              <div className="flex-1 min-w-0">
-                <div className="flex items-center gap-2 mb-1">
-                  <span className={`font-semibold ${
-                    activeTab === item.id ? 'text-blue-700' : 'text-gray-800'
-                  }`}>
-                    {item.label}
-                  </span>
-                  {item.badge && (
-                    <span className="bg-gradient-to-r from-purple-500 to-pink-500 text-white text-xs font-bold px-2 py-1 rounded-full animate-pulse">
-                      {item.badge}
-                    </span>
-                  )}
-                </div>
-                <p className="text-xs text-gray-500 group-hover:text-gray-600">
-                  {item.description}
-                </p>
-              </div>
+              <item.icon size={20} className={item.color} />
+              <span className="flex-1">{item.label}</span>
+              {item.badge && (
+                <span className="bg-purple-500 text-white text-xs font-bold px-2 py-0.5 rounded-full">
+                  {item.badge}
+                </span>
+              )}
             </button>
           ))}
         </div>
       </nav>
 
-      {/* Student Stats & Logout */}
-      <div className="p-4 border-t-2 border-neutral-100 space-y-4">
-        {/* Quick Stats */}
-        <div className="bg-gradient-to-r from-yellow-50 to-orange-50 p-3 rounded-xl border-2 border-yellow-200">
-          <div className="text-xs text-gray-600 mb-1">Today's Progress</div>
-          <div className="flex justify-between items-center">
-            <span className="font-bold text-gray-800">2/3 classes</span>
-            <div className="w-12 h-2 bg-yellow-200 rounded-full overflow-hidden">
-              <div 
-                className="h-full bg-gradient-to-r from-yellow-500 to-orange-500 rounded-full"
-                style={{ width: '66%' }}
-              ></div>
-            </div>
-          </div>
-        </div>
-
-        {/* Logout Button */}
+      {/* Logout Button */}
+      <div className="p-4 border-t-2 border-neutral-100">
         <button
           onClick={onLogout}
-          className="w-full flex items-center gap-3 p-3 rounded-xl text-red-600 hover:bg-red-50 transition-all duration-200 font-semibold border-2 border-transparent hover:border-red-200 hover:shadow-sm group"
+          className="w-full flex items-center gap-3 p-3 rounded-xl text-red-600 hover:bg-red-50 transition-all font-semibold"
         >
-          <LogOut 
-            size={20} 
-            className="group-hover:scale-110 transition-transform duration-200" 
-          />
+          <LogOut size={20} />
           <span>Logout</span>
         </button>
       </div>
@@ -160,85 +126,105 @@ const StudentDashboard = ({ onLogout }) => {
   const [aiResponse, setAiResponse] = useState('');
   const [isLoading, setIsLoading] = useState(false);
 
+  const student = {
+    name: "Alex Johnson",
+    avatar: "👨‍🎓",
+    grade: "Grade 5"
+  };
+
   const stats = [
     { 
+      icon: BookOpen, 
       label: 'Total Classes', 
       value: '12', 
-      icon: '📚', 
-      color: 'from-blue-400 to-blue-600',
-      bgColor: 'bg-blue-50'
+      color: 'bg-blue-500', 
+      trend: '3 active courses'
     },
     { 
+      icon: Award, 
       label: 'Completed', 
       value: '8', 
-      icon: '✅', 
-      color: 'from-green-400 to-green-600',
-      bgColor: 'bg-green-50'
+      color: 'bg-green-500', 
+      trend: '67% completion'
     },
     { 
-      label: 'Hours Studied', 
-      value: '24', 
-      icon: '⏰', 
-      color: 'from-purple-400 to-purple-600',
-      bgColor: 'bg-purple-50'
+      icon: BarChart3, 
+      label: 'Average Grade', 
+      value: '85%', 
+      color: 'bg-purple-500', 
+      trend: '+5% from last month'
     },
     { 
-      label: 'Badges Earned', 
-      value: '15', 
-      icon: '🏆', 
-      color: 'from-yellow-400 to-yellow-600',
-      bgColor: 'bg-yellow-50'
+      icon: ClipboardCheck, 
+      label: 'Attendance', 
+      value: '94%', 
+      color: 'bg-cyan-500', 
+      trend: 'Excellent record'
     },
   ];
 
   const upcomingClasses = [
-    { subject: 'Math', time: '2:00 PM', tutor: 'Ms. Johnson', color: 'bg-blue-100 border-blue-400' },
-    { subject: 'Science', time: '4:00 PM', tutor: 'Mr. Smith', color: 'bg-green-100 border-green-400' },
-    { subject: 'English', time: '6:00 PM', tutor: 'Ms. Davis', color: 'bg-purple-100 border-purple-400' },
+    { time: '2:00 PM', subject: 'Math', tutor: 'Ms. Johnson', topic: 'Fractions' },
+    { time: '4:00 PM', subject: 'Science', tutor: 'Mr. Smith', topic: 'Solar System' },
+    { time: '6:00 PM', subject: 'English', tutor: 'Ms. Davis', topic: 'Grammar' },
+  ];
+
+  const recentActivities = [
+    { id: 1, action: 'Completed Math Quiz', time: '30 mins ago', icon: '📝', type: 'grade' },
+    { id: 2, action: 'Attended Science Class', time: '1 hour ago', icon: '✅', type: 'attendance' },
+    { id: 3, action: 'Earned "Math Whiz" Badge', time: '2 hours ago', icon: '🏆', type: 'badge' },
+    { id: 4, action: 'Submitted English Essay', time: '3 hours ago', icon: '📄', type: 'assignment' }
+  ];
+
+  const gradesBySubject = [
+    { subject: 'Math', grade: 'A', percentage: 92, color: 'bg-blue-500', trend: '+5%' },
+    { subject: 'Science', grade: 'B+', percentage: 87, color: 'bg-green-500', trend: '+2%' },
+    { subject: 'English', grade: 'A-', percentage: 90, color: 'bg-purple-500', trend: '+3%' },
+    { subject: 'History', grade: 'B', percentage: 82, color: 'bg-orange-500', trend: '-1%' },
+  ];
+
+  const attendanceData = [
+    { month: 'September', present: 20, absent: 2, percentage: 91 },
+    { month: 'October', present: 22, absent: 0, percentage: 100 },
+    { month: 'November', present: 19, absent: 1, percentage: 95 },
   ];
 
   const recentBadges = [
-    { name: 'Math Whiz', icon: '🧮', color: 'bg-blue-400' },
-    { name: 'Science Star', icon: '🔬', color: 'bg-green-400' },
-    { name: 'Reading Pro', icon: '📖', color: 'bg-purple-400' },
-    { name: 'Quick Learner', icon: '⚡', color: 'bg-yellow-400' },
+    { name: 'Math Whiz', icon: '🧮', color: 'bg-blue-400', date: 'Today' },
+    { name: 'Science Star', icon: '🔬', color: 'bg-green-400', date: '2 days ago' },
+    { name: 'Reading Pro', icon: '📖', color: 'bg-purple-400', date: '5 days ago' },
+    { name: 'Quick Learner', icon: '⚡', color: 'bg-yellow-400', date: '1 week ago' },
   ];
 
   const aiFeatures = [
     {
       title: "Homework Helper",
-      description: "Get step-by-step explanations for any subject",
+      description: "Get step-by-step explanations",
       icon: "📝",
-      color: "from-blue-500 to-cyan-500",
+      color: "bg-blue-500",
       prompt: "Can you help me solve this math problem?"
     },
     {
       title: "Study Planner",
-      description: "Create personalized study schedules",
+      description: "Create study schedules",
       icon: "🗓️",
-      color: "from-purple-500 to-pink-500",
+      color: "bg-purple-500",
       prompt: "Help me create a study plan for my exams"
     },
     {
       title: "Concept Explainer",
-      description: "Understand complex topics easily",
+      description: "Understand topics easily",
       icon: "💡",
-      color: "from-green-500 to-teal-500",
+      color: "bg-green-500",
       prompt: "Explain photosynthesis in simple terms"
     },
     {
       title: "Quiz Generator",
-      description: "Test your knowledge with custom quizzes",
+      description: "Test your knowledge",
       icon: "🎯",
-      color: "from-orange-500 to-red-500",
+      color: "bg-orange-500",
       prompt: "Create a quiz about world history"
     }
-  ];
-
-  const recentConversations = [
-    { question: "How do I solve quadratic equations?", time: "2 hours ago" },
-    { question: "Explain the water cycle", time: "1 day ago" },
-    { question: "Help me with French vocabulary", time: "2 days ago" }
   ];
 
   const handleAiSubmit = (e) => {
@@ -246,316 +232,308 @@ const StudentDashboard = ({ onLogout }) => {
     if (!aiQuery.trim()) return;
     
     setIsLoading(true);
-    // Simulate AI response
     setTimeout(() => {
-      setAiResponse(`I'd be happy to help with "${aiQuery}"! Here's a detailed explanation:
-
-1. **Key Concepts**: Let me break this down into simple steps
-2. **Examples**: Here are some practical applications
-3. **Practice**: Try these exercises to reinforce your understanding
-
-Remember, learning is a journey! 🚀 Would you like me to elaborate on any specific part?`);
+      setAiResponse(`I'd be happy to help with "${aiQuery}"!\n\nHere's a detailed explanation:\n\n1. **Key Concepts**: Let me break this down into simple steps\n2. **Examples**: Here are some practical applications\n3. **Practice**: Try these exercises to reinforce your understanding\n\nRemember, learning is a journey! 🚀 Would you like me to elaborate on any specific part?`);
       setIsLoading(false);
     }, 2000);
   };
 
-  const handleQuickPrompt = (prompt) => {
-    setAiQuery(prompt);
-  };
-
-  const renderAIPage = () => (
+  const renderOverview = () => (
     <div className="space-y-6">
-      {/* AI Header */}
-      <div className="text-center mb-8">
-        <div className="flex items-center justify-center gap-3 mb-4">
-          <span className="text-6xl animate-pulse">🤖</span>
-          <h1 className="text-4xl md:text-5xl font-black text-gray-800">
-            Your Personal <span className="bg-gradient-to-r from-purple-600 to-blue-600 bg-clip-text text-transparent">AI Tutor</span>
-          </h1>
-        </div>
-        <p className="text-xl text-gray-600 max-w-2xl mx-auto">
-          Get instant help with homework, explanations, and study tips. Powered by advanced AI to make learning fun! ✨
-        </p>
+      {/* Header */}
+      <div>
+        <h1 className="font-display font-bold text-3xl text-neutral-900">
+          Welcome back, {student.name}! 👋
+        </h1>
+        <p className="text-neutral-600 mt-1">Here's your learning progress today</p>
       </div>
 
-      <div className="grid lg:grid-cols-3 gap-6">
-        {/* AI Features */}
-        <div className="lg:col-span-2">
-          <div className="bg-white rounded-3xl p-6 shadow-xl border-4 border-purple-200 mb-6">
-            <h2 className="text-2xl font-black text-gray-800 mb-4 flex items-center gap-3">
-              <span className="text-3xl">🚀</span> Quick Help Features
-            </h2>
-            <div className="grid md:grid-cols-2 gap-4">
-              {aiFeatures.map((feature, idx) => (
-                <div 
-                  key={idx}
-                  className={`bg-gradient-to-br ${feature.color} rounded-2xl p-4 text-white transform hover:scale-105 transition-all duration-200 cursor-pointer shadow-lg`}
-                  onClick={() => handleQuickPrompt(feature.prompt)}
-                >
-                  <div className="flex items-center gap-3 mb-2">
-                    <span className="text-3xl">{feature.icon}</span>
-                    <h3 className="font-bold text-lg">{feature.title}</h3>
-                  </div>
-                  <p className="text-white/90 text-sm">{feature.description}</p>
-                </div>
-              ))}
-            </div>
-          </div>
-
-          {/* AI Chat Interface */}
-          <div className="bg-white rounded-3xl p-6 shadow-xl border-4 border-blue-200">
-            <h2 className="text-2xl font-black text-gray-800 mb-4 flex items-center gap-3">
-              <span className="text-3xl">💬</span> Ask Me Anything!
-            </h2>
-            <form onSubmit={handleAiSubmit} className="space-y-4">
-              <div className="relative">
-                <textarea
-                  value={aiQuery}
-                  onChange={(e) => setAiQuery(e.target.value)}
-                  placeholder="Ask about math, science, history, or anything you're learning... 🌟"
-                  className="w-full h-32 p-4 border-4 border-purple-200 rounded-2xl resize-none focus:outline-none focus:border-purple-400 transition-colors text-lg"
-                  disabled={isLoading}
-                />
-                <div className="absolute bottom-3 right-3 text-gray-400">
-                  {aiQuery.length}/500
-                </div>
+      {/* Stats Grid */}
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+        {stats.map((stat, index) => (
+          <Card key={index} className="hover:shadow-lg transition">
+            <div className="flex items-start justify-between">
+              <div>
+                <p className="text-neutral-600 text-sm font-medium">{stat.label}</p>
+                <p className="text-3xl font-bold text-neutral-900 mt-2">{stat.value}</p>
+                <p className="text-xs text-neutral-500 mt-2">{stat.trend}</p>
               </div>
-              <button
-                type="submit"
-                disabled={isLoading || !aiQuery.trim()}
-                className="w-full bg-gradient-to-r from-purple-600 to-blue-600 text-white py-4 rounded-2xl font-bold text-lg hover:shadow-xl transform hover:scale-105 transition-all disabled:opacity-50 disabled:transform-none disabled:hover:shadow-none"
-              >
-                {isLoading ? (
-                  <div className="flex items-center justify-center gap-2">
-                    <div className="w-6 h-6 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
-                    Thinking...
-                  </div>
-                ) : (
-                  'Get AI Help! 🎯'
-                )}
-              </button>
-            </form>
+              <div className={`${stat.color} p-3 rounded-xl`}>
+                <stat.icon className="w-6 h-6 text-white" />
+              </div>
+            </div>
+          </Card>
+        ))}
+      </div>
 
-            {aiResponse && (
-              <div className="mt-6 p-4 bg-gradient-to-br from-green-50 to-blue-50 rounded-2xl border-4 border-green-200">
-                <div className="flex items-center gap-2 mb-3">
-                  <span className="text-2xl">🤖</span>
-                  <h3 className="font-bold text-gray-800">AI Tutor Response:</h3>
-                </div>
-                <div className="text-gray-700 whitespace-pre-wrap leading-relaxed">
-                  {aiResponse}
-                </div>
-                <div className="flex gap-2 mt-4">
-                  <button className="bg-white px-4 py-2 rounded-full font-semibold text-sm border-2 border-purple-200 hover:border-purple-400 transition-colors">
-                    👍 Helpful
-                  </button>
-                  <button className="bg-white px-4 py-2 rounded-full font-semibold text-sm border-2 border-purple-200 hover:border-purple-400 transition-colors">
-                    🔄 Regenerate
-                  </button>
-                  <button className="bg-white px-4 py-2 rounded-full font-semibold text-sm border-2 border-purple-200 hover:border-purple-400 transition-colors">
-                    📋 Copy
+      <div className="grid lg:grid-cols-2 gap-6">
+        {/* Upcoming Classes */}
+        <Card>
+          <h2 className="font-display font-bold text-xl text-neutral-900 mb-4">Today's Classes 📅</h2>
+          <div className="space-y-3">
+            {upcomingClasses.map((cls, index) => (
+              <div key={index} className="border-2 border-neutral-100 rounded-xl p-4 hover:border-primary-300 transition">
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-3">
+                    <div className="bg-primary-100 text-primary-600 font-bold px-3 py-2 rounded-lg text-sm">
+                      {cls.time}
+                    </div>
+                    <div>
+                      <div className="font-bold text-neutral-900">{cls.subject}</div>
+                      <div className="text-sm text-neutral-600">{cls.topic} • {cls.tutor}</div>
+                    </div>
+                  </div>
+                  <button className="bg-primary-500 text-white px-4 py-2 rounded-lg text-sm font-semibold hover:bg-primary-600 transition">
+                    Join
                   </button>
                 </div>
               </div>
-            )}
+            ))}
           </div>
-        </div>
+        </Card>
 
-        {/* Sidebar - Recent & Tips */}
-        <div className="space-y-6">
-          {/* Recent Conversations */}
-          <div className="bg-white rounded-3xl p-6 shadow-xl border-4 border-green-200">
-            <h2 className="text-2xl font-black text-gray-800 mb-4 flex items-center gap-3">
-              <span className="text-3xl">🕒</span> Recent Chats
-            </h2>
-            <div className="space-y-3">
-              {recentConversations.map((conv, idx) => (
-                <div 
-                  key={idx}
-                  className="p-3 bg-gray-50 rounded-xl border-2 border-gray-200 hover:border-purple-300 transition-colors cursor-pointer"
-                  onClick={() => setAiQuery(conv.question)}
-                >
-                  <p className="font-semibold text-gray-800 text-sm mb-1 line-clamp-2">
-                    {conv.question}
-                  </p>
-                  <p className="text-xs text-gray-500">{conv.time}</p>
+        {/* Recent Activity */}
+        <Card>
+          <h2 className="font-display font-bold text-xl text-neutral-900 mb-4">Recent Activity 🔔</h2>
+          <div className="space-y-3">
+            {recentActivities.map((activity) => (
+              <div key={activity.id} className="flex items-center gap-3 p-3 bg-neutral-50 rounded-xl hover:bg-neutral-100 transition">
+                <div className="text-2xl">{activity.icon}</div>
+                <div className="flex-1">
+                  <div className="font-semibold text-neutral-900 text-sm">{activity.action}</div>
+                  <div className="text-xs text-neutral-500">{activity.time}</div>
                 </div>
-              ))}
-            </div>
+              </div>
+            ))}
           </div>
-
-          {/* AI Tips */}
-          <div className="bg-gradient-to-br from-orange-100 to-pink-100 rounded-3xl p-6 shadow-xl border-4 border-orange-200">
-            <h2 className="text-2xl font-black text-gray-800 mb-4 flex items-center gap-3">
-              <span className="text-3xl">💫</span> Pro Tips
-            </h2>
-            <div className="space-y-3">
-              {[
-                "Be specific with your questions for better answers",
-                "Ask for step-by-step explanations",
-                "Request examples to understand better",
-                "Use the quick features for common tasks"
-              ].map((tip, idx) => (
-                <div key={idx} className="flex items-start gap-2">
-                  <span className="text-lg">✨</span>
-                  <p className="text-gray-700 text-sm">{tip}</p>
-                </div>
-              ))}
-            </div>
-          </div>
-
-          {/* Fun Facts */}
-          <div className="bg-gradient-to-br from-purple-100 to-blue-100 rounded-3xl p-6 shadow-xl border-4 border-purple-200">
-            <h2 className="text-2xl font-black text-gray-800 mb-4 flex items-center gap-3">
-              <span className="text-3xl">🌠</span> Did You Know?
-            </h2>
-            <div className="text-gray-700 space-y-2">
-              <p className="text-sm">
-                <strong>Fun Fact:</strong> The AI can explain concepts in multiple ways until you understand!
-              </p>
-              <p className="text-sm">
-                <strong>Tip:</strong> Ask "Can you give me a real-world example?" to make learning more relatable!
-              </p>
-            </div>
-          </div>
-        </div>
+        </Card>
       </div>
     </div>
   );
 
-  const renderOverview = () => (
-    <>
-      {/* Header */}
-      <div className="mb-8">
-        <div className="flex items-center gap-3 mb-2">
-          <span className="text-5xl animate-bounce">👋</span>
-          <h1 className="text-4xl md:text-5xl font-black text-gray-800">
-            Hey there, <span className="bg-gradient-to-r from-purple-600 to-pink-600 bg-clip-text text-transparent">Student!</span>
-          </h1>
-        </div>
-        <p className="text-xl text-gray-600 ml-16">Ready to learn something awesome today? 🚀</p>
-      </div>
-
-      {/* Stats Cards */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 md:gap-6 mb-8">
-        {stats.map((stat, idx) => (
-          <div 
-            key={idx}
-            className={`${stat.bgColor} rounded-3xl p-6 border-4 border-white shadow-lg transform hover:scale-105 transition-transform duration-200`}
-          >
+  const renderGrades = () => (
+    <Card>
+      <h2 className="font-display font-bold text-2xl text-neutral-900 mb-6">My Grades 📊</h2>
+      <div className="space-y-6">
+        {gradesBySubject.map((item, index) => (
+          <div key={index}>
             <div className="flex items-center justify-between mb-3">
-              <span className="text-5xl">{stat.icon}</span>
-              <div className={`bg-gradient-to-br ${stat.color} w-12 h-12 rounded-2xl flex items-center justify-center transform -rotate-12`}>
-                <span className="text-white text-xl font-bold transform rotate-12">{stat.value}</span>
+              <div className="flex items-center gap-3">
+                <div className={`${item.color} w-12 h-12 rounded-xl flex items-center justify-center text-white font-bold text-xl`}>
+                  {item.grade}
+                </div>
+                <div>
+                  <div className="font-bold text-neutral-900">{item.subject}</div>
+                  <div className="text-sm text-neutral-600">Current Grade: {item.percentage}%</div>
+                </div>
+              </div>
+              <div className="text-right">
+                <div className="text-sm font-semibold text-green-600">{item.trend}</div>
               </div>
             </div>
-            <h3 className="text-lg font-bold text-gray-700">{stat.label}</h3>
+            <div className="w-full bg-neutral-200 rounded-full h-3">
+              <div 
+                className={`${item.color} h-full rounded-full transition-all`}
+                style={{ width: `${item.percentage}%` }}
+              />
+            </div>
           </div>
         ))}
       </div>
 
-      <div className="grid lg:grid-cols-2 gap-6 mb-8">
-        {/* Upcoming Classes */}
-        <div className="bg-white rounded-3xl p-6 shadow-xl border-4 border-blue-200">
-          <div className="flex items-center gap-3 mb-6">
-            <span className="text-4xl">📅</span>
-            <h2 className="text-2xl font-black text-gray-800">Today's Classes</h2>
-          </div>
-          <div className="space-y-4">
-            {upcomingClasses.map((cls, idx) => (
+      <div className="mt-8 p-6 bg-gradient-to-r from-blue-50 to-purple-50 rounded-xl border-2 border-blue-100">
+        <h3 className="font-bold text-neutral-900 mb-2">Overall Performance</h3>
+        <div className="flex items-center justify-between">
+          <span className="text-neutral-600">Overall Average:</span>
+          <span className="text-3xl font-bold text-neutral-900">85%</span>
+        </div>
+      </div>
+    </Card>
+  );
+
+  const renderAttendance = () => (
+    <Card>
+      <h2 className="font-display font-bold text-2xl text-neutral-900 mb-6">My Attendance 📋</h2>
+      
+      {/* Overall Stats */}
+      <div className="grid md:grid-cols-3 gap-4 mb-8">
+        <div className="bg-green-50 rounded-xl p-4 border-2 border-green-200">
+          <div className="text-green-600 text-sm font-medium mb-1">Present</div>
+          <div className="text-3xl font-bold text-green-700">61 days</div>
+        </div>
+        <div className="bg-red-50 rounded-xl p-4 border-2 border-red-200">
+          <div className="text-red-600 text-sm font-medium mb-1">Absent</div>
+          <div className="text-3xl font-bold text-red-700">3 days</div>
+        </div>
+        <div className="bg-blue-50 rounded-xl p-4 border-2 border-blue-200">
+          <div className="text-blue-600 text-sm font-medium mb-1">Overall</div>
+          <div className="text-3xl font-bold text-blue-700">94%</div>
+        </div>
+      </div>
+
+      {/* Monthly Breakdown */}
+      <div className="space-y-4">
+        <h3 className="font-bold text-neutral-900 mb-4">Monthly Breakdown</h3>
+        {attendanceData.map((month, index) => (
+          <div key={index} className="border-2 border-neutral-100 rounded-xl p-4">
+            <div className="flex items-center justify-between mb-3">
+              <div className="font-bold text-neutral-900">{month.month}</div>
+              <div className="text-2xl font-bold text-neutral-900">{month.percentage}%</div>
+            </div>
+            <div className="flex gap-4 text-sm">
+              <div className="text-green-600">✅ Present: {month.present}</div>
+              <div className="text-red-600">❌ Absent: {month.absent}</div>
+            </div>
+            <div className="w-full bg-neutral-200 rounded-full h-2 mt-3">
               <div 
-                key={idx}
-                className={`${cls.color} rounded-2xl p-4 border-4 transform hover:scale-105 transition-transform`}
-              >
-                <div className="flex justify-between items-center">
-                  <div>
-                    <h3 className="text-xl font-bold text-gray-800">{cls.subject}</h3>
-                    <p className="text-gray-600 font-semibold">{cls.tutor}</p>
-                  </div>
-                  <div className="text-right">
-                    <p className="text-2xl font-black text-gray-800">{cls.time}</p>
-                    <button className="mt-2 bg-white px-4 py-2 rounded-full font-bold text-sm hover:shadow-lg transition">
-                      Join Now! 🎯
-                    </button>
-                  </div>
-                </div>
-              </div>
-            ))}
+                className="bg-green-500 h-full rounded-full transition-all"
+                style={{ width: `${month.percentage}%` }}
+              />
+            </div>
           </div>
+        ))}
+      </div>
+    </Card>
+  );
+
+  const renderBadges = () => (
+    <Card>
+      <h2 className="font-display font-bold text-2xl text-neutral-900 mb-6">My Badges 🏆</h2>
+      <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+        {recentBadges.map((badge, idx) => (
+          <div 
+            key={idx}
+            className="bg-gradient-to-br from-yellow-50 to-orange-50 rounded-xl p-4 border-2 border-yellow-200 text-center hover:scale-105 transition-transform"
+          >
+            <div className={`${badge.color} w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-2 text-3xl`}>
+              {badge.icon}
+            </div>
+            <p className="font-bold text-neutral-900 text-sm">{badge.name}</p>
+            <p className="text-xs text-neutral-600 mt-1">{badge.date}</p>
+          </div>
+        ))}
+      </div>
+
+      <div className="mt-6 p-4 bg-gradient-to-r from-yellow-50 to-orange-50 rounded-xl border-2 border-yellow-200">
+        <div className="flex items-center justify-between">
+          <span className="font-semibold text-neutral-700">Total Badges Earned:</span>
+          <span className="text-2xl font-bold text-neutral-900">15 🎉</span>
+        </div>
+      </div>
+    </Card>
+  );
+
+  const renderAI = () => (
+    <div className="space-y-6">
+      <Card>
+        <div className="flex items-center gap-3 mb-4">
+          <Brain className="w-8 h-8 text-purple-500" />
+          <h2 className="font-display font-bold text-2xl text-neutral-900">AI Tutor Assistant</h2>
+        </div>
+        <p className="text-neutral-600 mb-6">Get instant help with homework, explanations, and study tips!</p>
+
+        {/* Quick Features */}
+        <div className="grid md:grid-cols-4 gap-4 mb-6">
+          {aiFeatures.map((feature, idx) => (
+            <button
+              key={idx}
+              onClick={() => setAiQuery(feature.prompt)}
+              className={`${feature.color} text-white p-4 rounded-xl hover:shadow-lg transition transform hover:-translate-y-1 flex flex-col items-center gap-2`}
+            >
+              <span className="text-3xl">{feature.icon}</span>
+              <span className="text-sm font-semibold text-center">{feature.title}</span>
+            </button>
+          ))}
         </div>
 
-        {/* Recent Badges */}
-        <div className="bg-white rounded-3xl p-6 shadow-xl border-4 border-yellow-200">
-          <div className="flex items-center gap-3 mb-6">
-            <span className="text-4xl">🏆</span>
-            <h2 className="text-2xl font-black text-gray-800">Your Awesome Badges!</h2>
-          </div>
-          <div className="grid grid-cols-2 gap-4">
-            {recentBadges.map((badge, idx) => (
-              <div 
-                key={idx}
-                className="bg-gradient-to-br from-yellow-100 to-orange-100 rounded-2xl p-4 border-4 border-white shadow-lg text-center transform hover:scale-110 hover:rotate-3 transition-all"
-              >
-                <div className={`${badge.color} w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-2 text-3xl shadow-lg`}>
-                  {badge.icon}
-                </div>
-                <p className="font-bold text-gray-800 text-sm">{badge.name}</p>
-              </div>
-            ))}
-          </div>
-          <button className="w-full mt-6 bg-gradient-to-r from-yellow-400 to-orange-400 text-white py-3 rounded-2xl font-bold text-lg hover:shadow-xl transform hover:scale-105 transition">
-            View All Badges 🎉
+        {/* Chat Interface */}
+        <form onSubmit={handleAiSubmit} className="space-y-4">
+          <textarea
+            value={aiQuery}
+            onChange={(e) => setAiQuery(e.target.value)}
+            placeholder="Ask me anything about your studies... 📚"
+            className="w-full h-32 p-4 border-2 border-neutral-200 rounded-xl resize-none focus:outline-none focus:border-purple-400 transition"
+            disabled={isLoading}
+          />
+          <button
+            type="submit"
+            disabled={isLoading || !aiQuery.trim()}
+            className="w-full bg-gradient-to-r from-purple-500 to-blue-500 text-white py-3 rounded-xl font-bold hover:shadow-lg transition disabled:opacity-50"
+          >
+            {isLoading ? 'Thinking...' : 'Get AI Help! 🎯'}
           </button>
-        </div>
-      </div>
+        </form>
 
-      {/* Progress Section */}
-      <div className="bg-white rounded-3xl p-6 shadow-xl border-4 border-green-200">
-        <div className="flex items-center gap-3 mb-6">
-          <span className="text-4xl">📈</span>
-          <h2 className="text-2xl font-black text-gray-800">Your Learning Progress</h2>
-        </div>
-        <div className="space-y-4">
-          {['Math', 'Science', 'English'].map((subject, idx) => {
-            const progress = [85, 70, 92][idx];
-            const colors = ['bg-blue-500', 'bg-green-500', 'bg-purple-500'][idx];
-            return (
-              <div key={idx}>
-                <div className="flex justify-between mb-2">
-                  <span className="font-bold text-gray-700 text-lg">{subject}</span>
-                  <span className="font-black text-gray-800 text-lg">{progress}%</span>
+        {/* AI Response */}
+        {aiResponse && (
+          <div className="mt-6 p-4 bg-gradient-to-br from-green-50 to-blue-50 rounded-xl border-2 border-green-200">
+            <div className="flex items-center gap-2 mb-3">
+              <Brain className="w-5 h-5 text-purple-500" />
+              <h3 className="font-bold text-neutral-900">AI Tutor Response:</h3>
+            </div>
+            <div className="text-neutral-700 whitespace-pre-wrap">
+              {aiResponse}
+            </div>
+          </div>
+        )}
+      </Card>
+    </div>
+  );
+
+  const renderClasses = () => (
+    <Card>
+      <h2 className="font-display font-bold text-2xl text-neutral-900 mb-6">My Classes 📚</h2>
+      <div className="grid md:grid-cols-2 gap-4">
+        {['Math', 'Science', 'English', 'History'].map((subject, idx) => {
+          const colors = ['bg-blue-500', 'bg-green-500', 'bg-purple-500', 'bg-orange-500'];
+          const tutors = ['Ms. Johnson', 'Mr. Smith', 'Ms. Davis', 'Mr. Brown'];
+          return (
+            <div key={idx} className="border-2 border-neutral-100 rounded-xl p-4 hover:shadow-md transition">
+              <div className="flex items-start justify-between mb-4">
+                <div>
+                  <h3 className="font-bold text-neutral-900 text-lg">{subject}</h3>
+                  <p className="text-sm text-neutral-600">{tutors[idx]}</p>
                 </div>
-                <div className="w-full bg-gray-200 rounded-full h-6 border-2 border-gray-300">
-                  <div 
-                    className={`${colors} h-full rounded-full flex items-center justify-end pr-2 transition-all duration-500`}
-                    style={{ width: `${progress}%` }}
-                  >
-                    <span className="text-white text-xs font-bold">⭐</span>
-                  </div>
+                <div className={`${colors[idx]} p-2 rounded-lg`}>
+                  <BookOpen className="w-5 h-5 text-white" />
                 </div>
               </div>
-            );
-          })}
-        </div>
+              <div className="space-y-2 text-sm">
+                <div className="flex justify-between">
+                  <span className="text-neutral-600">Progress:</span>
+                  <span className="font-semibold text-neutral-900">{[85, 70, 92, 78][idx]}%</span>
+                </div>
+                <div className="w-full bg-neutral-200 rounded-full h-2">
+                  <div 
+                    className={`${colors[idx]} h-full rounded-full`}
+                    style={{ width: `${[85, 70, 92, 78][idx]}%` }}
+                  />
+                </div>
+              </div>
+            </div>
+          );
+        })}
       </div>
-    </>
+    </Card>
   );
 
   return (
-    <div className="flex min-h-screen bg-gradient-to-br from-blue-50 via-purple-50 to-pink-50">
+    <div className="bg-gradient-to-br from-neutral-50 to-neutral-100 min-h-screen">
       <Sidebar 
         activeTab={activeTab}
         onTabChange={setActiveTab}
         onLogout={onLogout}
-        student={{
-          name: "Alex Johnson",
-          avatar: "👨‍🎓"
-        }}
+        student={student}
       />
       
-      <main className="flex-1 p-4 md:p-8 ml-0 md:ml-64">
-        {activeTab === 'ai' ? renderAIPage() : renderOverview()}
-      </main>
+      <div className="ml-64 p-8">
+        {activeTab === 'overview' && renderOverview()}
+        {activeTab === 'ai' && renderAI()}
+        {activeTab === 'classes' && renderClasses()}
+        {activeTab === 'grades' && renderGrades()}
+        {activeTab === 'attendance' && renderAttendance()}
+        {activeTab === 'badges' && renderBadges()}
+      </div>
     </div>
   );
 };
