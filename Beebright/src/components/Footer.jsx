@@ -109,7 +109,7 @@ const Footer = () => {
             <ul className="space-y-3">
               <li className="flex items-start gap-3 text-neutral-400">
                 <MapPin size={20} className="text-primary-500 flex-shrink-0 mt-1" />
-                <span>Bugallon, Ilocos, Philippines</span>
+                <span>Tapuac District, Dagupan City</span>
               </li>
               <li className="flex items-center gap-3 text-neutral-400">
                 <Phone size={20} className="text-primary-500 flex-shrink-0" />
