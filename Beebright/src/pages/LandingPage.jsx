@@ -107,7 +107,7 @@ const LandingPage = ({ onLogin, onGoToLogin }) => {
               <div className="bg-white rounded-2xl p-6 transform -rotate-3">
                 <div className="text-6xl text-center mb-4 animate-bounce">🎓</div>
                 <div className="text-center">
-                  <div className="text-4xl font-bold text-amber-600 mb-2">1,234+</div>
+                  <div className="text-4xl font-bold text-amber-600 mb-2">100+</div>
                   <div className="text-gray-600">Happy Students</div>
                 </div>
               </div>
@@ -200,11 +200,11 @@ const LandingPage = ({ onLogin, onGoToLogin }) => {
                   <div className="text-6xl text-center mb-6">📖</div>
                   <div className="space-y-4 text-center">
                     <div>
-                      <div className="text-3xl font-bold text-amber-600">10+</div>
+                      <div className="text-3xl font-bold text-amber-600">2+</div>
                       <div className="text-gray-600">Years Experience</div>
                     </div>
                     <div>
-                      <div className="text-3xl font-bold text-orange-600">50+</div>
+                      <div className="text-3xl font-bold text-orange-600">15+</div>
                       <div className="text-gray-600">Expert Tutors</div>
                     </div>
                     <div>
@@ -331,8 +331,8 @@ const LandingPage = ({ onLogin, onGoToLogin }) => {
                     <div>
                       <div className="font-bold text-gray-900 mb-1">Address</div>
                       <div className="text-gray-600">
-                        123 Learning Street, Education City<br />
-                        Bugallon, Pangasinan, Philippines
+                        Room A, 2nd Floor, Teo-Tinay Building<br />
+                        Tapuac, Dagupan City, Philippines
                       </div>
                     </div>
                   </div>
@@ -342,8 +342,7 @@ const LandingPage = ({ onLogin, onGoToLogin }) => {
                     <div>
                       <div className="font-bold text-gray-900 mb-1">Phone</div>
                       <div className="text-gray-600">
-                        +63 912 345 6789<br />
-                        +63 998 765 4321
+                        (075) 636 8093<br />
                       </div>
                     </div>
                   </div>
@@ -353,8 +352,17 @@ const LandingPage = ({ onLogin, onGoToLogin }) => {
                     <div>
                       <div className="font-bold text-gray-900 mb-1">Email</div>
                       <div className="text-gray-600">
-                        info@beebright.com<br />
-                        support@beebright.com
+                        beebrightph@gmail.com<br />
+                      </div>
+                    </div>
+                  </div>
+
+                  <div className="flex items-start gap-4 bg-purple-50 rounded-xl p-5 border-2 border-purple-200">
+                    <div className="text-3xl">📷</div>
+                    <div>
+                      <div className="font-bold text-gray-900 mb-1">Instagram</div>
+                      <div className="text-gray-600">
+                        beebrightph<br />
                       </div>
                     </div>
                   </div>
@@ -527,8 +535,8 @@ const LandingPage = ({ onLogin, onGoToLogin }) => {
                 <a href="#" className="bg-gray-800 w-10 h-10 rounded-full flex items-center justify-center hover:bg-amber-500 transition">📧</a>
               </div>
               <p className="text-gray-400 text-sm">
-                📧 info@beebright.com<br />
-                📱 +63 912 345 6789
+                📧 beebrightph@gmail.com<br />
+                📱 (075) 636 8093
               </p>
             </div>
           </div>
