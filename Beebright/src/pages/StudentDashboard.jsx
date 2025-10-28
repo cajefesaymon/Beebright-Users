@@ -1,6 +1,7 @@
 // src/pages/StudentDashboard.jsx
 import React, { useState } from 'react';
-import { LogOut, Home, Brain, BookOpen, TrendingUp, Award, Calendar, ClipboardCheck, BarChart3 } from 'lucide-react';
+import { Home, Brain, BookOpen, Award, ClipboardCheck, BarChart3, Bell } from 'lucide-react';
+import Sidebar from '../components/Sidebar';
 
 // Card Component
 const Card = ({ children, className = '' }) => (
@@ -9,12 +10,18 @@ const Card = ({ children, className = '' }) => (
   </div>
 );
 
-// Sidebar Component
-const Sidebar = ({ activeTab, onTabChange, onLogout, student }) => {
-  const safeStudent = {
-    avatar: student?.avatar || '👨‍🎓',
-    name: student?.name || 'Student',
-    ...student
+// Main StudentDashboard Component
+const StudentDashboard = ({ onLogout }) => {
+  const [activeTab, setActiveTab] = useState('overview');
+  const [aiQuery, setAiQuery] = useState('');
+  const [aiResponse, setAiResponse] = useState('');
+  const [isLoading, setIsLoading] = useState(false);
+
+  const student = {
+    name: "Alex Johnson",
+    avatar: "👨‍🎓",
+    role: "student",
+    grade: "Grade 5"
   };
 
   const studentMenuItems = [
@@ -54,83 +61,14 @@ const Sidebar = ({ activeTab, onTabChange, onLogout, student }) => {
       label: 'My Badges',
       icon: Award,
       color: 'text-yellow-500',
+    },
+    {
+      id: 'messages',
+      label: 'Messages',
+      icon: Bell,
+      color: 'text-purple-500',
     }
   ];
-
-  return (
-    <div className="bg-white h-screen w-64 fixed left-0 top-0 shadow-lg border-r-2 border-neutral-100 flex flex-col z-50">
-      {/* Logo & Student Info */}
-      <div className="p-6 border-b-2 border-neutral-100">
-        <div className="flex items-center gap-3 mb-4">
-          <div className="w-12 h-12 bg-gradient-to-r from-yellow-400 to-orange-400 rounded-xl flex items-center justify-center text-2xl">
-            🐝
-          </div>
-          <span className="font-display font-bold text-2xl text-neutral-900">
-            BeeBright
-          </span>
-        </div>
-        <div className="bg-gradient-to-r from-blue-50 to-purple-50 p-4 rounded-xl border-2 border-blue-100">
-          <div className="flex items-center gap-3">
-            <div className="text-3xl">{safeStudent.avatar}</div>
-            <div className="flex-1 min-w-0">
-              <div className="font-bold text-neutral-900 truncate">{safeStudent.name}</div>
-              <div className="text-sm text-neutral-600">Student</div>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      {/* Menu Items */}
-      <nav className="flex-1 p-4 overflow-y-auto">
-        <div className="space-y-1">
-          {studentMenuItems.map((item) => (
-            <button
-              key={item.id}
-              onClick={() => onTabChange(item.id)}
-              className={`w-full flex items-center gap-3 p-3 rounded-xl transition-all text-left ${
-                activeTab === item.id
-                  ? 'bg-primary-50 text-primary-600 font-semibold'
-                  : 'text-neutral-700 hover:bg-neutral-50'
-              }`}
-            >
-              <item.icon size={20} className={item.color} />
-              <span className="flex-1">{item.label}</span>
-              {item.badge && (
-                <span className="bg-purple-500 text-white text-xs font-bold px-2 py-0.5 rounded-full">
-                  {item.badge}
-                </span>
-              )}
-            </button>
-          ))}
-        </div>
-      </nav>
-
-      {/* Logout Button */}
-      <div className="p-4 border-t-2 border-neutral-100">
-        <button
-          onClick={onLogout}
-          className="w-full flex items-center gap-3 p-3 rounded-xl text-red-600 hover:bg-red-50 transition-all font-semibold"
-        >
-          <LogOut size={20} />
-          <span>Logout</span>
-        </button>
-      </div>
-    </div>
-  );
-};
-
-// Main StudentDashboard Component
-const StudentDashboard = ({ onLogout }) => {
-  const [activeTab, setActiveTab] = useState('overview');
-  const [aiQuery, setAiQuery] = useState('');
-  const [aiResponse, setAiResponse] = useState('');
-  const [isLoading, setIsLoading] = useState(false);
-
-  const student = {
-    name: "Alex Johnson",
-    avatar: "👨‍🎓",
-    grade: "Grade 5"
-  };
 
   const stats = [
     { 
@@ -224,6 +162,54 @@ const StudentDashboard = ({ onLogout }) => {
       icon: "🎯",
       color: "bg-orange-500",
       prompt: "Create a quiz about world history"
+    }
+  ];
+
+  const studentMessages = [
+    { 
+      id: 1, 
+      date: "Oct 24", 
+      title: "Great Job on Math Quiz!", 
+      message: "Congratulations! You scored 92% on your recent Math quiz. Keep up the excellent work!", 
+      priority: "normal",
+      from: "Ms. Johnson",
+      subject: "Math"
+    },
+    { 
+      id: 2, 
+      date: "Oct 23", 
+      title: "Upcoming Science Project Deadline", 
+      message: "Reminder: Your Solar System project is due on October 30th. Make sure to include all the required elements.", 
+      priority: "high",
+      from: "Mr. Smith",
+      subject: "Science"
+    },
+    { 
+      id: 3, 
+      date: "Oct 22", 
+      title: "Parent-Teacher Conference", 
+      message: "Your parent-teacher conference is scheduled for November 2nd. We'll discuss your progress this semester.", 
+      priority: "normal",
+      from: "School Administration",
+      subject: "General"
+    },
+    { 
+      id: 4, 
+      date: "Oct 20", 
+      title: "Excellent Essay Submission", 
+      message: "Your essay on 'My Hero' was very well written. I've given you an A-. Great character development!", 
+      priority: "normal",
+      from: "Ms. Davis",
+      subject: "English"
+    },
+    { 
+      id: 5, 
+      date: "Oct 18", 
+      title: "School Holiday Reminder", 
+      message: "School will be closed on November 1-2 for All Saints' Day. Enjoy your break!", 
+      priority: "normal",
+      from: "School Administration",
+      subject: "General"
     }
   ];
 
@@ -517,13 +503,47 @@ const StudentDashboard = ({ onLogout }) => {
     </Card>
   );
 
+  const renderMessages = () => (
+    <div className="space-y-6">
+      <Card>
+        <h2 className="font-display font-bold text-2xl text-neutral-900 mb-4">Messages & Notifications 📢</h2>
+        <div className="space-y-3">
+          {studentMessages.map((message) => (
+            <div key={message.id} className={`p-4 rounded-xl border-2 ${
+              message.priority === 'high' 
+                ? 'border-red-200 bg-red-50' 
+                : 'border-neutral-200 bg-neutral-50'
+            }`}>
+              <div className="flex items-start justify-between mb-2">
+                <div>
+                  <div className="font-bold text-neutral-900">{message.title}</div>
+                  <div className="text-xs text-neutral-500 mt-1">
+                    From: {message.from} • {message.subject}
+                  </div>
+                </div>
+                <div className="text-xs text-neutral-500">{message.date}</div>
+              </div>
+              <p className="text-sm text-neutral-700">{message.message}</p>
+              {message.priority === 'high' && (
+                <div className="mt-2 inline-block bg-red-100 text-red-700 px-2 py-1 rounded-full text-xs font-bold">
+                  ⚠️ Important
+                </div>
+              )}
+            </div>
+          ))}
+        </div>
+      </Card>
+    </div>
+  );
+
   return (
     <div className="bg-gradient-to-br from-neutral-50 to-neutral-100 min-h-screen">
       <Sidebar 
+        user={student}
+        menuItems={studentMenuItems}
         activeTab={activeTab}
-        onTabChange={setActiveTab}
+        setActiveTab={setActiveTab}
         onLogout={onLogout}
-        student={student}
       />
       
       <div className="ml-64 p-8">
@@ -533,6 +553,7 @@ const StudentDashboard = ({ onLogout }) => {
         {activeTab === 'grades' && renderGrades()}
         {activeTab === 'attendance' && renderAttendance()}
         {activeTab === 'badges' && renderBadges()}
+        {activeTab === 'messages' && renderMessages()}
       </div>
     </div>
   );
