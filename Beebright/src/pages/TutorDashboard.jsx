@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useAuth } from '../context/AuthContext';
 import Sidebar from '../components/Sidebar';
 import Card, { StatCard } from '../components/Card';
-import { Home, Users, Calendar, FileText, Clock, ChevronRight, Brain } from 'lucide-react';
+import { Home, Users, Calendar, FileText, Clock, ChevronRight, Brain, X, Download, Share2, Mail, Plus } from 'lucide-react';
 
 const TutorDashboard = ({ onLogout }) => {
   const { user } = useAuth();
@@ -10,6 +10,14 @@ const TutorDashboard = ({ onLogout }) => {
   const [aiQuery, setAiQuery] = useState('');
   const [aiResponse, setAiResponse] = useState('');
   const [isLoading, setIsLoading] = useState(false);
+
+  // State for quick action modals
+  const [showAttendanceModal, setShowAttendanceModal] = useState(false);
+  const [showGradesModal, setShowGradesModal] = useState(false);
+  const [showMaterialsModal, setShowMaterialsModal] = useState(false);
+  const [showMessageModal, setShowMessageModal] = useState(false);
+  const [selectedClass, setSelectedClass] = useState(null);
+  const [selectedStudent, setSelectedStudent] = useState(null);
 
   const menuItems = [
     { id: 'home', icon: Home, label: 'Dashboard', color: 'text-primary-500' },
@@ -26,13 +34,490 @@ const TutorDashboard = ({ onLogout }) => {
   ];
 
   const myStudents = [
-    { id: 1, name: "Alex Chen", grade: "Grade 5", avatar: "🧒", score: 85, attendance: 96 },
-    { id: 2, name: "Emma Chen", grade: "Grade 3", avatar: "👧", score: 92, attendance: 98 },
-    { id: 3, name: "Lucas Wong", grade: "Grade 5", avatar: "👦", score: 78, attendance: 88 },
-    { id: 4, name: "Sophia Lee", grade: "Grade 4", avatar: "👧", score: 88, attendance: 94 },
-    { id: 5, name: "Ethan Cruz", grade: "Grade 6", avatar: "👦", score: 91, attendance: 97 },
-    { id: 6, name: "Mia Santos", grade: "Grade 4", avatar: "👧", score: 86, attendance: 95 }
+    { id: 1, name: "Alex Chen", grade: "Grade 5", avatar: "🧒", score: 85, attendance: 96, email: "alex.chen@email.com" },
+    { id: 2, name: "Emma Chen", grade: "Grade 3", avatar: "👧", score: 92, attendance: 98, email: "emma.chen@email.com" },
+    { id: 3, name: "Lucas Wong", grade: "Grade 5", avatar: "👦", score: 78, attendance: 88, email: "lucas.wong@email.com" },
+    { id: 4, name: "Sophia Lee", grade: "Grade 4", avatar: "👧", score: 88, attendance: 94, email: "sophia.lee@email.com" },
+    { id: 5, name: "Ethan Cruz", grade: "Grade 6", avatar: "👦", score: 91, attendance: 97, email: "ethan.cruz@email.com" },
+    { id: 6, name: "Mia Santos", grade: "Grade 4", avatar: "👧", score: 86, attendance: 95, email: "mia.santos@email.com" }
   ];
+
+  // Quick Actions Handlers
+  const handleMarkAttendance = (classItem) => {
+    setSelectedClass(classItem);
+    setShowAttendanceModal(true);
+  };
+
+  const handleEnterGrades = () => {
+    setShowGradesModal(true);
+  };
+
+  const handleUploadMaterials = () => {
+    setShowMaterialsModal(true);
+  };
+
+  const handleMessageParents = () => {
+    setShowMessageModal(true);
+  };
+
+  // Attendance Modal Component
+  const AttendanceModal = () => {
+    const [attendance, setAttendance] = useState({});
+    
+    useEffect(() => {
+      // Initialize attendance status for each student
+      const initialAttendance = {};
+      myStudents.forEach(student => {
+        initialAttendance[student.id] = 'Present';
+      });
+      setAttendance(initialAttendance);
+    }, []);
+
+    const handleAttendanceChange = (studentId, status) => {
+      setAttendance(prev => ({
+        ...prev,
+        [studentId]: status
+      }));
+    };
+
+    const handleSubmitAttendance = () => {
+      // In a real app, this would send data to your backend
+      console.log('Attendance submitted:', attendance);
+      alert(`Attendance marked for ${selectedClass.subject}!`);
+      setShowAttendanceModal(false);
+    };
+
+    return (
+      <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+        <div className="bg-white rounded-2xl p-6 w-full max-w-2xl max-h-[90vh] overflow-y-auto">
+          <div className="flex justify-between items-center mb-4">
+            <h2 className="text-2xl font-bold text-gray-800">
+              Mark Attendance - {selectedClass?.subject}
+            </h2>
+            <button onClick={() => setShowAttendanceModal(false)} className="text-gray-500 hover:text-gray-700">
+              <X size={24} />
+            </button>
+          </div>
+          
+          <div className="space-y-4">
+            {myStudents.map(student => (
+              <div key={student.id} className="flex items-center justify-between p-4 border rounded-lg">
+                <div className="flex items-center gap-3">
+                  <span className="text-2xl">{student.avatar}</span>
+                  <div>
+                    <div className="font-semibold">{student.name}</div>
+                    <div className="text-sm text-gray-600">{student.grade}</div>
+                  </div>
+                </div>
+                <div className="flex gap-2">
+                  {['Present', 'Absent', 'Late'].map(status => (
+                    <button
+                      key={status}
+                      onClick={() => handleAttendanceChange(student.id, status)}
+                      className={`px-3 py-1 rounded-full text-sm font-medium transition-colors ${
+                        attendance[student.id] === status
+                          ? status === 'Present' 
+                            ? 'bg-green-500 text-white'
+                            : status === 'Absent'
+                            ? 'bg-red-500 text-white'
+                            : 'bg-yellow-500 text-white'
+                          : 'bg-gray-200 text-gray-700 hover:bg-gray-300'
+                      }`}
+                    >
+                      {status}
+                    </button>
+                  ))}
+                </div>
+              </div>
+            ))}
+          </div>
+          
+          <div className="flex gap-3 mt-6">
+            <button
+              onClick={handleSubmitAttendance}
+              className="flex-1 bg-green-500 text-white py-3 rounded-xl font-semibold hover:bg-green-600 transition"
+            >
+              Save Attendance
+            </button>
+            <button
+              onClick={() => setShowAttendanceModal(false)}
+              className="flex-1 bg-gray-500 text-white py-3 rounded-xl font-semibold hover:bg-gray-600 transition"
+            >
+              Cancel
+            </button>
+          </div>
+        </div>
+      </div>
+    );
+  };
+
+  // Grades Modal Component
+  const GradesModal = () => {
+    const [grades, setGrades] = useState({});
+    const [assignmentType, setAssignmentType] = useState('Quiz');
+
+    const handleGradeChange = (studentId, value) => {
+      setGrades(prev => ({
+        ...prev,
+        [studentId]: value
+      }));
+    };
+
+    const handleSubmitGrades = () => {
+      console.log('Grades submitted:', grades);
+      alert(`Grades for ${assignmentType} saved successfully!`);
+      setShowGradesModal(false);
+    };
+
+    return (
+      <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+        <div className="bg-white rounded-2xl p-6 w-full max-w-4xl max-h-[90vh] overflow-y-auto">
+          <div className="flex justify-between items-center mb-6">
+            <h2 className="text-2xl font-bold text-gray-800">Enter Grades</h2>
+            <button onClick={() => setShowGradesModal(false)} className="text-gray-500 hover:text-gray-700">
+              <X size={24} />
+            </button>
+          </div>
+
+          <div className="mb-6">
+            <label className="block text-sm font-medium text-gray-700 mb-2">Assignment Type</label>
+            <select
+              value={assignmentType}
+              onChange={(e) => setAssignmentType(e.target.value)}
+              className="w-full p-3 border rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500"
+            >
+              <option>Quiz</option>
+              <option>Homework</option>
+              <option>Test</option>
+              <option>Project</option>
+              <option>Participation</option>
+            </select>
+          </div>
+
+          <div className="space-y-3">
+            {myStudents.map(student => (
+              <div key={student.id} className="flex items-center justify-between p-4 border rounded-lg">
+                <div className="flex items-center gap-3 flex-1">
+                  <span className="text-2xl">{student.avatar}</span>
+                  <div className="flex-1">
+                    <div className="font-semibold">{student.name}</div>
+                    <div className="text-sm text-gray-600">{student.grade}</div>
+                  </div>
+                </div>
+                <div className="flex items-center gap-3">
+                  <input
+                    type="number"
+                    min="0"
+                    max="100"
+                    placeholder="Score"
+                    value={grades[student.id] || ''}
+                    onChange={(e) => handleGradeChange(student.id, e.target.value)}
+                    className="w-24 p-2 border rounded-lg text-center"
+                  />
+                  <span className="text-gray-500">/100</span>
+                </div>
+              </div>
+            ))}
+          </div>
+
+          <div className="flex gap-3 mt-6">
+            <button
+              onClick={handleSubmitGrades}
+              className="flex-1 bg-blue-500 text-white py-3 rounded-xl font-semibold hover:bg-blue-600 transition"
+            >
+              Save All Grades
+            </button>
+            <button
+              onClick={() => setShowGradesModal(false)}
+              className="flex-1 bg-gray-500 text-white py-3 rounded-xl font-semibold hover:bg-gray-600 transition"
+            >
+              Cancel
+            </button>
+          </div>
+        </div>
+      </div>
+    );
+  };
+
+  // Materials Modal Component
+  const MaterialsModal = () => {
+    const [materials, setMaterials] = useState([]);
+    const [newMaterial, setNewMaterial] = useState({
+      title: '',
+      type: 'Document',
+      file: null,
+      description: ''
+    });
+
+    const handleFileChange = (e) => {
+      const file = e.target.files[0];
+      if (file) {
+        setNewMaterial(prev => ({
+          ...prev,
+          file,
+          title: file.name
+        }));
+      }
+    };
+
+    const handleAddMaterial = (e) => {
+      e.preventDefault();
+      if (!newMaterial.title) return;
+
+      const material = {
+        id: Date.now(),
+        ...newMaterial,
+        date: new Date().toLocaleDateString(),
+        size: newMaterial.file ? `${(newMaterial.file.size / 1024 / 1024).toFixed(2)} MB` : 'N/A'
+      };
+
+      setMaterials(prev => [material, ...prev]);
+      setNewMaterial({ title: '', type: 'Document', file: null, description: '' });
+    };
+
+    const handleShareMaterial = (material) => {
+      // Simulate sharing functionality
+      alert(`Sharing "${material.title}" with all students!`);
+    };
+
+    return (
+      <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+        <div className="bg-white rounded-2xl p-6 w-full max-w-4xl max-h-[90vh] overflow-y-auto">
+          <div className="flex justify-between items-center mb-6">
+            <h2 className="text-2xl font-bold text-gray-800">Upload Study Materials</h2>
+            <button onClick={() => setShowMaterialsModal(false)} className="text-gray-500 hover:text-gray-700">
+              <X size={24} />
+            </button>
+          </div>
+
+          <form onSubmit={handleAddMaterial} className="bg-gray-50 p-4 rounded-xl mb-6">
+            <div className="grid md:grid-cols-2 gap-4 mb-4">
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">Material Title</label>
+                <input
+                  type="text"
+                  value={newMaterial.title}
+                  onChange={(e) => setNewMaterial(prev => ({ ...prev, title: e.target.value }))}
+                  className="w-full p-3 border rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  placeholder="Enter material title"
+                />
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">Type</label>
+                <select
+                  value={newMaterial.type}
+                  onChange={(e) => setNewMaterial(prev => ({ ...prev, type: e.target.value }))}
+                  className="w-full p-3 border rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500"
+                >
+                  <option>Document</option>
+                  <option>Video</option>
+                  <option>Worksheet</option>
+                  <option>Presentation</option>
+                  <option>Other</option>
+                </select>
+              </div>
+            </div>
+
+            <div className="mb-4">
+              <label className="block text-sm font-medium text-gray-700 mb-2">Description</label>
+              <textarea
+                value={newMaterial.description}
+                onChange={(e) => setNewMaterial(prev => ({ ...prev, description: e.target.value }))}
+                className="w-full p-3 border rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500"
+                rows="2"
+                placeholder="Describe this material..."
+              />
+            </div>
+
+            <div className="mb-4">
+              <label className="block text-sm font-medium text-gray-700 mb-2">Upload File</label>
+              <input
+                type="file"
+                onChange={handleFileChange}
+                className="w-full p-3 border rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500"
+              />
+            </div>
+
+            <button
+              type="submit"
+              className="bg-purple-500 text-white py-3 px-6 rounded-xl font-semibold hover:bg-purple-600 transition flex items-center gap-2"
+            >
+              <Plus size={20} />
+              Add Material
+            </button>
+          </form>
+
+          <div className="space-y-3">
+            <h3 className="text-lg font-semibold mb-4">Recent Materials ({materials.length})</h3>
+            {materials.length === 0 ? (
+              <p className="text-gray-500 text-center py-8">No materials uploaded yet</p>
+            ) : (
+              materials.map(material => (
+                <div key={material.id} className="flex items-center justify-between p-4 border rounded-lg">
+                  <div className="flex items-center gap-3">
+                    <div className="text-3xl">
+                      {material.type === 'Video' ? '🎬' : 
+                       material.type === 'Worksheet' ? '📝' : 
+                       material.type === 'Presentation' ? '📊' : '📄'}
+                    </div>
+                    <div>
+                      <div className="font-semibold">{material.title}</div>
+                      <div className="text-sm text-gray-600">
+                        {material.type} • {material.date} • {material.size}
+                      </div>
+                      {material.description && (
+                        <div className="text-sm text-gray-500 mt-1">{material.description}</div>
+                      )}
+                    </div>
+                  </div>
+                  <div className="flex gap-2">
+                    <button
+                      onClick={() => handleShareMaterial(material)}
+                      className="p-2 text-blue-600 hover:bg-blue-50 rounded-lg transition"
+                      title="Share with students"
+                    >
+                      <Share2 size={18} />
+                    </button>
+                    <button
+                      className="p-2 text-green-600 hover:bg-green-50 rounded-lg transition"
+                      title="Download"
+                    >
+                      <Download size={18} />
+                    </button>
+                  </div>
+                </div>
+              ))
+            )}
+          </div>
+        </div>
+      </div>
+    );
+  };
+
+  // Message Parents Modal Component
+  const MessageParentsModal = () => {
+    const [message, setMessage] = useState('');
+    const [selectedStudents, setSelectedStudents] = useState([]);
+    const [messageType, setMessageType] = useState('Progress Update');
+
+    const toggleStudentSelection = (studentId) => {
+      setSelectedStudents(prev =>
+        prev.includes(studentId)
+          ? prev.filter(id => id !== studentId)
+          : [...prev, studentId]
+      );
+    };
+
+    const selectAllStudents = () => {
+      setSelectedStudents(myStudents.map(student => student.id));
+    };
+
+    const handleSendMessage = () => {
+      if (selectedStudents.length === 0 || !message.trim()) {
+        alert('Please select at least one student and write a message');
+        return;
+      }
+
+      const selectedNames = myStudents
+        .filter(student => selectedStudents.includes(student.id))
+        .map(student => student.name)
+        .join(', ');
+
+      alert(`Message sent to parents of: ${selectedNames}`);
+      setShowMessageModal(false);
+      setMessage('');
+      setSelectedStudents([]);
+    };
+
+    return (
+      <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+        <div className="bg-white rounded-2xl p-6 w-full max-w-2xl max-h-[90vh] overflow-y-auto">
+          <div className="flex justify-between items-center mb-6">
+            <h2 className="text-2xl font-bold text-gray-800">Message Parents</h2>
+            <button onClick={() => setShowMessageModal(false)} className="text-gray-500 hover:text-gray-700">
+              <X size={24} />
+            </button>
+          </div>
+
+          <div className="mb-6">
+            <label className="block text-sm font-medium text-gray-700 mb-2">Message Type</label>
+            <select
+              value={messageType}
+              onChange={(e) => setMessageType(e.target.value)}
+              className="w-full p-3 border rounded-xl focus:outline-none focus:ring-2 focus:ring-orange-500"
+            >
+              <option>Progress Update</option>
+              <option>Behavior Note</option>
+              <option>Assignment Reminder</option>
+              <option>Meeting Request</option>
+              <option>General Update</option>
+            </select>
+          </div>
+
+          <div className="mb-6">
+            <div className="flex justify-between items-center mb-3">
+              <label className="block text-sm font-medium text-gray-700">Select Students</label>
+              <button
+                type="button"
+                onClick={selectAllStudents}
+                className="text-sm text-orange-600 hover:text-orange-700 font-medium"
+              >
+                Select All
+              </button>
+            </div>
+            <div className="grid grid-cols-2 gap-2 max-h-40 overflow-y-auto">
+              {myStudents.map(student => (
+                <div
+                  key={student.id}
+                  className={`flex items-center gap-2 p-3 border rounded-lg cursor-pointer transition ${
+                    selectedStudents.includes(student.id)
+                      ? 'bg-orange-50 border-orange-200'
+                      : 'bg-white border-gray-200 hover:bg-gray-50'
+                  }`}
+                  onClick={() => toggleStudentSelection(student.id)}
+                >
+                  <input
+                    type="checkbox"
+                    checked={selectedStudents.includes(student.id)}
+                    onChange={() => {}}
+                    className="rounded text-orange-600 focus:ring-orange-500"
+                  />
+                  <span className="text-xl">{student.avatar}</span>
+                  <span className="font-medium text-sm">{student.name}</span>
+                </div>
+              ))}
+            </div>
+          </div>
+
+          <div className="mb-6">
+            <label className="block text-sm font-medium text-gray-700 mb-2">Your Message</label>
+            <textarea
+              value={message}
+              onChange={(e) => setMessage(e.target.value)}
+              className="w-full h-32 p-3 border rounded-xl focus:outline-none focus:ring-2 focus:ring-orange-500 resize-none"
+              placeholder="Write your message to parents..."
+            />
+          </div>
+
+          <div className="flex gap-3">
+            <button
+              onClick={handleSendMessage}
+              className="flex-1 bg-orange-500 text-white py-3 rounded-xl font-semibold hover:bg-orange-600 transition flex items-center justify-center gap-2"
+            >
+              <Mail size={18} />
+              Send Messages
+            </button>
+            <button
+              onClick={() => setShowMessageModal(false)}
+              className="flex-1 bg-gray-500 text-white py-3 rounded-xl font-semibold hover:bg-gray-600 transition"
+            >
+              Cancel
+            </button>
+          </div>
+        </div>
+      </div>
+    );
+  };
 
   const aiFeatures = [
     {
@@ -268,12 +753,12 @@ Would you like me to elaborate on any specific aspect or provide more detailed r
     <div className="space-y-6">
       <div className="bg-gradient-to-r from-blue-500 to-purple-500 rounded-3xl p-8 text-white">
         <h1 className="text-3xl font-display font-bold mb-2">Hello, {user.name}! 👩‍🏫</h1>
-        <p className="text-lg opacity-90">You have 3 classes scheduled today</p>
+        <p className="text-lg opacity-90">You have {todayClasses.length} classes scheduled today</p>
       </div>
 
       <div className="grid md:grid-cols-3 gap-6">
-        <StatCard icon="👥" value="24" label="Total Students" color="blue" />
-        <StatCard icon="📚" value="3" label="Classes Today" color="green" />
+        <StatCard icon="👥" value={myStudents.length.toString()} label="Total Students" color="blue" />
+        <StatCard icon="📚" value={todayClasses.length.toString()} label="Classes Today" color="green" />
         <StatCard icon="📊" value="87%" label="Avg Performance" color="purple" />
       </div>
 
@@ -296,7 +781,13 @@ Would you like me to elaborate on any specific aspect or provide more detailed r
                 <div className="font-semibold text-primary-600">{cls.time}</div>
                 <div className="text-xs text-neutral-500">Today</div>
               </div>
-              <ChevronRight className="text-neutral-400" />
+              <button 
+                onClick={() => handleMarkAttendance(cls)}
+                className="p-2 text-blue-600 hover:bg-blue-50 rounded-lg transition"
+                title="Mark Attendance"
+              >
+                <ChevronRight className="text-neutral-400" />
+              </button>
             </div>
           ))}
         </div>
@@ -305,22 +796,34 @@ Would you like me to elaborate on any specific aspect or provide more detailed r
       <Card>
         <h2 className="font-display font-bold text-2xl text-neutral-900 mb-4">Quick Actions</h2>
         <div className="grid md:grid-cols-2 gap-4">
-          <button className="p-4 rounded-xl bg-gradient-to-r from-green-50 to-green-100 border-2 border-green-200 hover:shadow-md transition text-left">
+          <button 
+            onClick={() => handleMarkAttendance(todayClasses[0])}
+            className="p-4 rounded-xl bg-gradient-to-r from-green-50 to-green-100 border-2 border-green-200 hover:shadow-md transition text-left hover:border-green-400"
+          >
             <div className="text-3xl mb-2">📝</div>
             <div className="font-bold text-neutral-900">Mark Attendance</div>
             <div className="text-sm text-neutral-600">Record today's attendance</div>
           </button>
-          <button className="p-4 rounded-xl bg-gradient-to-r from-blue-50 to-blue-100 border-2 border-blue-200 hover:shadow-md transition text-left">
+          <button 
+            onClick={handleEnterGrades}
+            className="p-4 rounded-xl bg-gradient-to-r from-blue-50 to-blue-100 border-2 border-blue-200 hover:shadow-md transition text-left hover:border-blue-400"
+          >
             <div className="text-3xl mb-2">📊</div>
             <div className="font-bold text-neutral-900">Enter Grades</div>
             <div className="text-sm text-neutral-600">Update student scores</div>
           </button>
-          <button className="p-4 rounded-xl bg-gradient-to-r from-purple-50 to-purple-100 border-2 border-purple-200 hover:shadow-md transition text-left">
+          <button 
+            onClick={handleUploadMaterials}
+            className="p-4 rounded-xl bg-gradient-to-r from-purple-50 to-purple-100 border-2 border-purple-200 hover:shadow-md transition text-left hover:border-purple-400"
+          >
             <div className="text-3xl mb-2">📚</div>
             <div className="font-bold text-neutral-900">Upload Materials</div>
             <div className="text-sm text-neutral-600">Share study resources</div>
           </button>
-          <button className="p-4 rounded-xl bg-gradient-to-r from-orange-50 to-orange-100 border-2 border-orange-200 hover:shadow-md transition text-left">
+          <button 
+            onClick={handleMessageParents}
+            className="p-4 rounded-xl bg-gradient-to-r from-orange-50 to-orange-100 border-2 border-orange-200 hover:shadow-md transition text-left hover:border-orange-400"
+          >
             <div className="text-3xl mb-2">💬</div>
             <div className="font-bold text-neutral-900">Message Parents</div>
             <div className="text-sm text-neutral-600">Send updates & feedback</div>
@@ -353,13 +856,26 @@ Would you like me to elaborate on any specific aspect or provide more detailed r
                 <div className="text-xs text-neutral-600">Attendance</div>
               </div>
             </div>
+            <div className="mt-4 flex gap-2">
+              <button 
+                onClick={() => {
+                  setSelectedStudent(student);
+                  setShowMessageModal(true);
+                }}
+                className="flex-1 bg-orange-500 text-white py-2 rounded-lg text-sm font-semibold hover:bg-orange-600 transition"
+              >
+                Message Parent
+              </button>
+              <button className="flex-1 bg-blue-500 text-white py-2 rounded-lg text-sm font-semibold hover:bg-blue-600 transition">
+                View Profile
+              </button>
+            </div>
           </div>
         ))}
       </div>
     </Card>
   );
 
-  // ------------------ Student Records (frontend-only) ------------------
   const StudentRecords = () => {
     const STORAGE_KEY = 'beebright_records_v1';
     const [records, setRecords] = useState(() => {
@@ -409,7 +925,6 @@ Would you like me to elaborate on any specific aspect or provide more detailed r
       setForm({ name: '', attendance: 'Present', quiz: '', exam: '', participation: '' });
     };
 
-    // Suggested materials simple rules
     const suggestionsFor = (avg) => {
       if (avg < 50) return ['Start with basic drills', 'Watch intro video lessons', '1-on-1 tutoring'];
       if (avg < 70) return ['Practice quizzes', 'Targeted exercises', 'Short video reviews'];
@@ -515,26 +1030,66 @@ Would you like me to elaborate on any specific aspect or provide more detailed r
           <tbody>
             <tr className="border-b border-neutral-100">
               <td className="py-3 px-4 font-semibold text-neutral-600">10:00 AM</td>
-              <td className="py-3 px-4"><div className="bg-blue-100 text-blue-700 p-2 rounded text-sm font-semibold">Grade 5 Math</div></td>
-              <td className="py-3 px-4"><div className="bg-blue-100 text-blue-700 p-2 rounded text-sm font-semibold">Grade 5 Math</div></td>
-              <td className="py-3 px-4"><div className="bg-blue-100 text-blue-700 p-2 rounded text-sm font-semibold">Grade 5 Math</div></td>
-              <td className="py-3 px-4"><div className="bg-blue-100 text-blue-700 p-2 rounded text-sm font-semibold">Grade 5 Math</div></td>
-              <td className="py-3 px-4"><div className="bg-blue-100 text-blue-700 p-2 rounded text-sm font-semibold">Grade 5 Math</div></td>
+              <td className="py-3 px-4">
+                <button onClick={() => handleMarkAttendance({ subject: "Grade 5 Math", time: "10:00 AM" })}>
+                  <div className="bg-blue-100 text-blue-700 p-2 rounded text-sm font-semibold hover:bg-blue-200 transition">Grade 5 Math</div>
+                </button>
+              </td>
+              <td className="py-3 px-4">
+                <button onClick={() => handleMarkAttendance({ subject: "Grade 5 Math", time: "10:00 AM" })}>
+                  <div className="bg-blue-100 text-blue-700 p-2 rounded text-sm font-semibold hover:bg-blue-200 transition">Grade 5 Math</div>
+                </button>
+              </td>
+              <td className="py-3 px-4">
+                <button onClick={() => handleMarkAttendance({ subject: "Grade 5 Math", time: "10:00 AM" })}>
+                  <div className="bg-blue-100 text-blue-700 p-2 rounded text-sm font-semibold hover:bg-blue-200 transition">Grade 5 Math</div>
+                </button>
+              </td>
+              <td className="py-3 px-4">
+                <button onClick={() => handleMarkAttendance({ subject: "Grade 5 Math", time: "10:00 AM" })}>
+                  <div className="bg-blue-100 text-blue-700 p-2 rounded text-sm font-semibold hover:bg-blue-200 transition">Grade 5 Math</div>
+                </button>
+              </td>
+              <td className="py-3 px-4">
+                <button onClick={() => handleMarkAttendance({ subject: "Grade 5 Math", time: "10:00 AM" })}>
+                  <div className="bg-blue-100 text-blue-700 p-2 rounded text-sm font-semibold hover:bg-blue-200 transition">Grade 5 Math</div>
+                </button>
+              </td>
             </tr>
             <tr className="border-b border-neutral-100">
               <td className="py-3 px-4 font-semibold text-neutral-600">2:00 PM</td>
-              <td className="py-3 px-4"><div className="bg-green-100 text-green-700 p-2 rounded text-sm font-semibold">Grade 4 Math</div></td>
+              <td className="py-3 px-4">
+                <button onClick={() => handleMarkAttendance({ subject: "Grade 4 Math", time: "2:00 PM" })}>
+                  <div className="bg-green-100 text-green-700 p-2 rounded text-sm font-semibold hover:bg-green-200 transition">Grade 4 Math</div>
+                </button>
+              </td>
               <td className="py-3 px-4"></td>
-              <td className="py-3 px-4"><div className="bg-green-100 text-green-700 p-2 rounded text-sm font-semibold">Grade 4 Math</div></td>
+              <td className="py-3 px-4">
+                <button onClick={() => handleMarkAttendance({ subject: "Grade 4 Math", time: "2:00 PM" })}>
+                  <div className="bg-green-100 text-green-700 p-2 rounded text-sm font-semibold hover:bg-green-200 transition">Grade 4 Math</div>
+                </button>
+              </td>
               <td className="py-3 px-4"></td>
-              <td className="py-3 px-4"><div className="bg-green-100 text-green-700 p-2 rounded text-sm font-semibold">Grade 4 Math</div></td>
+              <td className="py-3 px-4">
+                <button onClick={() => handleMarkAttendance({ subject: "Grade 4 Math", time: "2:00 PM" })}>
+                  <div className="bg-green-100 text-green-700 p-2 rounded text-sm font-semibold hover:bg-green-200 transition">Grade 4 Math</div>
+                </button>
+              </td>
             </tr>
             <tr>
               <td className="py-3 px-4 font-semibold text-neutral-600">4:00 PM</td>
               <td className="py-3 px-4"></td>
-              <td className="py-3 px-4"><div className="bg-purple-100 text-purple-700 p-2 rounded text-sm font-semibold">Grade 6 Math</div></td>
+              <td className="py-3 px-4">
+                <button onClick={() => handleMarkAttendance({ subject: "Grade 6 Math", time: "4:00 PM" })}>
+                  <div className="bg-purple-100 text-purple-700 p-2 rounded text-sm font-semibold hover:bg-purple-200 transition">Grade 6 Math</div>
+                </button>
+              </td>
               <td className="py-3 px-4"></td>
-              <td className="py-3 px-4"><div className="bg-purple-100 text-purple-700 p-2 rounded text-sm font-semibold">Grade 6 Math</div></td>
+              <td className="py-3 px-4">
+                <button onClick={() => handleMarkAttendance({ subject: "Grade 6 Math", time: "4:00 PM" })}>
+                  <div className="bg-purple-100 text-purple-700 p-2 rounded text-sm font-semibold hover:bg-purple-200 transition">Grade 6 Math</div>
+                </button>
+              </td>
               <td className="py-3 px-4"></td>
             </tr>
           </tbody>
@@ -571,6 +1126,12 @@ Would you like me to elaborate on any specific aspect or provide more detailed r
         {activeTab === 'classes' && <Classes />}
         {activeTab === 'students' && <Students />}
         {activeTab === 'reports' && <Reports />}
+        
+        {/* Modals */}
+        {showAttendanceModal && <AttendanceModal />}
+        {showGradesModal && <GradesModal />}
+        {showMaterialsModal && <MaterialsModal />}
+        {showMessageModal && <MessageParentsModal />}
       </div>
     </div>
   );
