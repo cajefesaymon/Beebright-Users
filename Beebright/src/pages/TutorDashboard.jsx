@@ -29,8 +29,8 @@ const TutorDashboard = ({ onLogout }) => {
 
   const todayClasses = [
     { id: 1, subject: "Mathematics", time: "10:00 AM", students: 8, grade: "Grade 5", room: "Room A" },
-    { id: 2, subject: "Mathematics", time: "2:00 PM", students: 6, grade: "Grade 4", room: "Room B" },
-    { id: 3, subject: "Mathematics", time: "4:00 PM", students: 10, grade: "Grade 6", room: "Room A" }
+    { id: 2, subject: "Filipino", time: "2:00 PM", students: 6, grade: "Grade 4", room: "Room B" },
+    { id: 3, subject: "English", time: "4:00 PM", students: 10, grade: "Grade 6", room: "Room A" }
   ];
 
   const myStudents = [
@@ -43,10 +43,10 @@ const TutorDashboard = ({ onLogout }) => {
   ];
 
   // Quick Actions Handlers
-  const handleMarkAttendance = (classItem) => {
-    setSelectedClass(classItem);
-    setShowAttendanceModal(true);
-  };
+  const handleMarkAttendance = () => {
+  setSelectedClass({ subject: "All Students" });
+  setShowAttendanceModal(true);
+};
 
   const handleEnterGrades = () => {
     setShowGradesModal(true);
@@ -83,7 +83,7 @@ const TutorDashboard = ({ onLogout }) => {
     const handleSubmitAttendance = () => {
       // In a real app, this would send data to your backend
       console.log('Attendance submitted:', attendance);
-      alert(`Attendance marked for ${selectedClass.subject}!`);
+      alert(`Attendance marked for All Students!`);
       setShowAttendanceModal(false);
     };
 
@@ -92,7 +92,7 @@ const TutorDashboard = ({ onLogout }) => {
         <div className="bg-white rounded-2xl p-6 w-full max-w-2xl max-h-[90vh] overflow-y-auto">
           <div className="flex justify-between items-center mb-4">
             <h2 className="text-2xl font-bold text-gray-800">
-              Mark Attendance - {selectedClass?.subject}
+                Mark Attendance - All Students
             </h2>
             <button onClick={() => setShowAttendanceModal(false)} className="text-gray-500 hover:text-gray-700">
               <X size={24} />

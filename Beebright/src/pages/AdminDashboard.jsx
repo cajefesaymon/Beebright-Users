@@ -93,7 +93,6 @@ const AdminDashboard = ({ onLogout }) => {
     { id: 'users', icon: UsersIcon, label: 'Users', color: 'text-blue-500' },
     { id: 'admins', icon: Shield, label: 'Admins', color: 'text-red-500' },
     { id: 'tutors', icon: BookOpen, label: 'Tutors', color: 'text-purple-500' },
-    { id: 'payments', icon: DollarSign, label: 'Payments', color: 'text-purple-500' },
     { id: 'announcements', icon: Bell, label: 'Announcements', color: 'text-green-500' },
     { id: 'settings', icon: Settings, label: 'Settings', color: 'text-neutral-500' }
   ];
@@ -243,11 +242,6 @@ const AdminDashboard = ({ onLogout }) => {
     t.email.toLowerCase().includes(searchTutor.toLowerCase())
   );
 
-  const recentPayments = [
-    { id: 1, parent: "Mrs. Chen", amount: "₱2,500", date: "Oct 15, 2025", status: "Completed" },
-    { id: 2, parent: "Mr. Wong", amount: "₱3,000", date: "Oct 14, 2025", status: "Completed" },
-    { id: 3, parent: "Mrs. Lee", amount: "₱2,500", date: "Oct 13, 2025", status: "Pending" }
-  ];
 
   const pendingCount = enrollments.filter(e => e.status === 'pending').length;
   const approvedCount = enrollments.filter(e => e.status === 'approved').length;
@@ -302,24 +296,6 @@ const AdminDashboard = ({ onLogout }) => {
           >
             View All Enrollments
           </button>
-        </Card>
-
-        <Card>
-          <h2 className="font-display font-bold text-xl text-neutral-900 mb-4 flex items-center gap-2">
-            <UsersIcon className="text-blue-500" />
-            Recent Users
-          </h2>
-          <div className="space-y-3">
-            {users.slice(0, 3).map((user) => (
-              <div key={user.id} className="flex items-center gap-3 p-3 rounded-xl bg-neutral-50 hover:bg-neutral-100 transition">
-                <div className="text-3xl">{user.avatar}</div>
-                <div className="flex-1">
-                  <div className="font-bold text-neutral-900">{user.name}</div>
-                  <div className="text-sm text-neutral-600">{user.role} • {user.email}</div>
-                </div>
-              </div>
-            ))}
-          </div>
         </Card>
       </div>
     </div>
@@ -883,50 +859,6 @@ const AdminDashboard = ({ onLogout }) => {
     </Card>
   );
 
-  const Payments = () => (
-    <Card>
-      <h2 className="font-display font-bold text-2xl text-neutral-900 mb-6">Payment Management 💰</h2>
-      <div className="grid md:grid-cols-3 gap-4 mb-6">
-        <div className="bg-green-50 border-2 border-green-200 rounded-xl p-4">
-          <div className="text-2xl font-bold text-green-600">₱125,500</div>
-          <div className="text-sm text-neutral-600">Total Revenue (Oct)</div>
-        </div>
-        <div className="bg-orange-50 border-2 border-orange-200 rounded-xl p-4">
-          <div className="text-2xl font-bold text-orange-600">₱8,500</div>
-          <div className="text-sm text-neutral-600">Pending Payments</div>
-        </div>
-        <div className="bg-blue-50 border-2 border-blue-200 rounded-xl p-4">
-          <div className="text-2xl font-bold text-blue-600">98%</div>
-          <div className="text-sm text-neutral-600">Collection Rate</div>
-        </div>
-      </div>
-      <div className="space-y-3">
-        {recentPayments.map((payment) => (
-          <div key={payment.id} className="flex items-center justify-between p-4 rounded-xl bg-gradient-to-r from-neutral-50 to-neutral-100 border-2 border-neutral-200">
-            <div>
-              <div className="font-bold text-neutral-900">{payment.parent}</div>
-              <div className="text-sm text-neutral-600">{payment.date}</div>
-            </div>
-            <div className="flex items-center gap-4">
-              <div className="text-xl font-bold text-primary-600">{payment.amount}</div>
-              <div className={`px-3 py-1 rounded-full text-xs font-bold ${
-                payment.status === 'Completed' 
-                  ? 'bg-green-100 text-green-700' 
-                  : 'bg-orange-100 text-orange-700'
-              }`}>
-                {payment.status}
-              </div>
-              {payment.status === 'Pending' && (
-                <button className="bg-primary-500 text-white px-4 py-1 rounded-lg text-sm font-semibold hover:bg-primary-600 transition">
-                  Follow Up
-                </button>
-              )}
-            </div>
-          </div>
-        ))}
-      </div>
-    </Card>
-  );
 
   return (
     <div className="bg-gradient-to-br from-neutral-50 to-neutral-100 min-h-screen">
@@ -943,7 +875,6 @@ const AdminDashboard = ({ onLogout }) => {
         {activeTab === 'users' && <Users />}
         {activeTab === 'admins' && <Admins />}
         {activeTab === 'tutors' && <Tutors />}
-        {activeTab === 'payments' && <Payments />}
         {activeTab === 'announcements' && (
           <Card>
             <h2 className="font-display font-bold text-2xl text-neutral-900 mb-6">Announcements 📢</h2>
@@ -1046,25 +977,6 @@ const AdminDashboard = ({ onLogout }) => {
                 </div>
               </div>
 
-              <div>
-                <h3 className="font-bold text-neutral-900 mb-3">Payment Settings</h3>
-                <div className="space-y-3">
-                  <div className="flex items-center justify-between p-4 bg-neutral-50 rounded-xl">
-                    <div>
-                      <div className="font-semibold text-neutral-900">Default Monthly Fee</div>
-                      <div className="text-sm text-neutral-600">₱2,500 per month</div>
-                    </div>
-                    <button className="text-primary-600 hover:text-primary-700 font-semibold text-sm">Edit</button>
-                  </div>
-                  <div className="flex items-center justify-between p-4 bg-neutral-50 rounded-xl">
-                    <div>
-                      <div className="font-semibold text-neutral-900">Payment Methods</div>
-                      <div className="text-sm text-neutral-600">GCash, Bank Transfer, Cash</div>
-                    </div>
-                    <button className="text-primary-600 hover:text-primary-700 font-semibold text-sm">Manage</button>
-                  </div>
-                </div>
-              </div>
             </div>
           </Card>
         )}

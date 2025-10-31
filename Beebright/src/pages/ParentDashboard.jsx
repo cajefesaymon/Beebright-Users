@@ -17,7 +17,6 @@ const ParentDashboard = ({ onLogout }) => {
   const menuItems = [
     { id: 'home', icon: Home, label: 'Dashboard', color: 'text-primary-500' },
     { id: 'children', icon: Users, label: 'My Children', color: 'text-blue-500' },
-    { id: 'payments', icon: DollarSign, label: 'Payments', color: 'text-green-500' },
     { id: 'messages', icon: Bell, label: 'Messages', color: 'text-purple-500' }
   ];
 
@@ -26,11 +25,6 @@ const ParentDashboard = ({ onLogout }) => {
     { id: 2, name: "Emma Chen", grade: "Grade 3", avatar: "👧" }
   ];
 
-  const payments = [
-    { id: 1, date: "Oct 15, 2025", amount: "₱2,500", status: "Paid", method: "GCash" },
-    { id: 2, date: "Oct 1, 2025", amount: "₱2,500", status: "Paid", method: "Bank Transfer" },
-    { id: 3, date: "Nov 1, 2025", amount: "₱2,500", status: "Pending", method: "Pending" }
-  ];
 
   const progressData = [
     { subject: "Math", score: 85, trend: "up" },
@@ -106,39 +100,7 @@ const ParentDashboard = ({ onLogout }) => {
     </div>
   );
 
-  const Payments = () => (
-    <Card>
-      <h2 className="font-display font-bold text-2xl text-neutral-900 mb-6">Payment History 💳</h2>
-      <div className="space-y-3">
-        {payments.map((payment) => (
-          <div key={payment.id} className="flex items-center justify-between p-4 rounded-xl bg-gradient-to-r from-neutral-50 to-neutral-100 border-2 border-neutral-200">
-            <div className="flex items-center gap-4">
-              <div className={`w-12 h-12 rounded-xl flex items-center justify-center ${
-                payment.status === 'Paid' ? 'bg-green-100 text-green-600' : 'bg-orange-100 text-orange-600'
-              }`}>
-                <DollarSign size={24} />
-              </div>
-              <div>
-                <div className="font-bold text-neutral-900">{payment.amount}</div>
-                <div className="text-sm text-neutral-600">{payment.date}</div>
-              </div>
-            </div>
-            <div className="text-right">
-              <div className={`px-3 py-1 rounded-full text-sm font-bold ${
-                payment.status === 'Paid'
-                  ? 'bg-green-100 text-green-700'
-                  : 'bg-orange-100 text-orange-700'
-              }`}>
-                {payment.status}
-              </div>
-              <div className="text-xs text-neutral-500 mt-1">{payment.method}</div>
-            </div>
-          </div>
-        ))}
-      </div>
-    </Card>
-  );
-
+  
   const Messages = () => (
     <Card>
       <h2 className="font-display font-bold text-2xl text-neutral-900 mb-4">Messages & Announcements 📧</h2>
@@ -161,7 +123,6 @@ const ParentDashboard = ({ onLogout }) => {
       <div className="ml-64 p-8">
         {activeTab === 'home' && <ParentHome />}
         {activeTab === 'children' && <ParentHome />}
-        {activeTab === 'payments' && <Payments />}
         {activeTab === 'messages' && <Messages />}
       </div>
     </div>
