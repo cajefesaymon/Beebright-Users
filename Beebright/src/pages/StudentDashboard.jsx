@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import logo from '../assets/beebrightlogo.jpg';
 import { LogOut, Home, Brain, BookOpen, TrendingUp, Award } from 'lucide-react';
 
 // Sidebar Component (Integrated)
@@ -53,8 +54,12 @@ const Sidebar = ({ activeTab, onTabChange, onLogout, student }) => {
       {/* Logo & Student Info */}
       <div className="p-6 border-b-2 border-neutral-100">
         <div className="flex items-center gap-3 mb-4">
-          <div className="w-12 h-12 bg-gradient-to-r from-yellow-400 to-orange-400 rounded-2xl flex items-center justify-center text-white font-bold text-lg">
-            🐝
+          <div className="w-12 h-12 rounded-2xl overflow-hidden border-2 border-yellow-400 flex items-center justify-center bg-white">
+              <img
+                  src={logo}
+                  alt="BeeBright Logo"
+                  className="w-full h-full object-cover"
+              />
           </div>
           <span className="font-display font-bold text-2xl bg-gradient-to-r from-blue-500 to-purple-500 bg-clip-text text-transparent">
             BeeBright
@@ -62,7 +67,7 @@ const Sidebar = ({ activeTab, onTabChange, onLogout, student }) => {
         </div>
         <div className="bg-gradient-to-r from-blue-50 to-purple-50 p-4 rounded-2xl border-2 border-white shadow-sm">
           <div className="flex items-center gap-3">
-            <div className="text-3xl">👨‍🎓</div>
+            <div className="text-3xl">{safeStudent.avatar}</div>
             <div className="flex-1 min-w-0">
               <div className="font-bold text-neutral-900 truncate text-lg">{safeStudent.name}</div>
               <div className="text-sm text-neutral-600 flex items-center gap-1">
@@ -263,166 +268,9 @@ Remember, learning is a journey! 🚀 Would you like me to elaborate on any spec
     setAiQuery(prompt);
   };
 
-  const renderAIPage = () => (
-    <div className="space-y-6">
-      {/* AI Header */}
-      <div className="text-center mb-8">
-        <div className="flex items-center justify-center gap-3 mb-4">
-          <span className="text-6xl animate-pulse">🤖</span>
-          <h1 className="text-4xl md:text-5xl font-black text-gray-800">
-            Your Personal <span className="bg-gradient-to-r from-purple-600 to-blue-600 bg-clip-text text-transparent">AI Tutor</span>
-          </h1>
-        </div>
-        <p className="text-xl text-gray-600 max-w-2xl mx-auto">
-          Get instant help with homework, explanations, and study tips. Powered by advanced AI to make learning fun! ✨
-        </p>
-      </div>
+  // ----------------- PAGES / SECTIONS -----------------
 
-      <div className="grid lg:grid-cols-3 gap-6">
-        {/* AI Features */}
-        <div className="lg:col-span-2">
-          <div className="bg-white rounded-3xl p-6 shadow-xl border-4 border-purple-200 mb-6">
-            <h2 className="text-2xl font-black text-gray-800 mb-4 flex items-center gap-3">
-              <span className="text-3xl">🚀</span> Quick Help Features
-            </h2>
-            <div className="grid md:grid-cols-2 gap-4">
-              {aiFeatures.map((feature, idx) => (
-                <div 
-                  key={idx}
-                  className={`bg-gradient-to-br ${feature.color} rounded-2xl p-4 text-white transform hover:scale-105 transition-all duration-200 cursor-pointer shadow-lg`}
-                  onClick={() => handleQuickPrompt(feature.prompt)}
-                >
-                  <div className="flex items-center gap-3 mb-2">
-                    <span className="text-3xl">{feature.icon}</span>
-                    <h3 className="font-bold text-lg">{feature.title}</h3>
-                  </div>
-                  <p className="text-white/90 text-sm">{feature.description}</p>
-                </div>
-              ))}
-            </div>
-          </div>
-
-          {/* AI Chat Interface */}
-          <div className="bg-white rounded-3xl p-6 shadow-xl border-4 border-blue-200">
-            <h2 className="text-2xl font-black text-gray-800 mb-4 flex items-center gap-3">
-              <span className="text-3xl">💬</span> Ask Me Anything!
-            </h2>
-            <form onSubmit={handleAiSubmit} className="space-y-4">
-              <div className="relative">
-                <textarea
-                  value={aiQuery}
-                  onChange={(e) => setAiQuery(e.target.value)}
-                  placeholder="Ask about math, science, history, or anything you're learning... 🌟"
-                  className="w-full h-32 p-4 border-4 border-purple-200 rounded-2xl resize-none focus:outline-none focus:border-purple-400 transition-colors text-lg"
-                  disabled={isLoading}
-                />
-                <div className="absolute bottom-3 right-3 text-gray-400">
-                  {aiQuery.length}/500
-                </div>
-              </div>
-              <button
-                type="submit"
-                disabled={isLoading || !aiQuery.trim()}
-                className="w-full bg-gradient-to-r from-purple-600 to-blue-600 text-white py-4 rounded-2xl font-bold text-lg hover:shadow-xl transform hover:scale-105 transition-all disabled:opacity-50 disabled:transform-none disabled:hover:shadow-none"
-              >
-                {isLoading ? (
-                  <div className="flex items-center justify-center gap-2">
-                    <div className="w-6 h-6 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
-                    Thinking...
-                  </div>
-                ) : (
-                  'Get AI Help! 🎯'
-                )}
-              </button>
-            </form>
-
-            {aiResponse && (
-              <div className="mt-6 p-4 bg-gradient-to-br from-green-50 to-blue-50 rounded-2xl border-4 border-green-200">
-                <div className="flex items-center gap-2 mb-3">
-                  <span className="text-2xl">🤖</span>
-                  <h3 className="font-bold text-gray-800">AI Tutor Response:</h3>
-                </div>
-                <div className="text-gray-700 whitespace-pre-wrap leading-relaxed">
-                  {aiResponse}
-                </div>
-                <div className="flex gap-2 mt-4">
-                  <button className="bg-white px-4 py-2 rounded-full font-semibold text-sm border-2 border-purple-200 hover:border-purple-400 transition-colors">
-                    👍 Helpful
-                  </button>
-                  <button className="bg-white px-4 py-2 rounded-full font-semibold text-sm border-2 border-purple-200 hover:border-purple-400 transition-colors">
-                    🔄 Regenerate
-                  </button>
-                  <button className="bg-white px-4 py-2 rounded-full font-semibold text-sm border-2 border-purple-200 hover:border-purple-400 transition-colors">
-                    📋 Copy
-                  </button>
-                </div>
-              </div>
-            )}
-          </div>
-        </div>
-
-        {/* Sidebar - Recent & Tips */}
-        <div className="space-y-6">
-          {/* Recent Conversations */}
-          <div className="bg-white rounded-3xl p-6 shadow-xl border-4 border-green-200">
-            <h2 className="text-2xl font-black text-gray-800 mb-4 flex items-center gap-3">
-              <span className="text-3xl">🕒</span> Recent Chats
-            </h2>
-            <div className="space-y-3">
-              {recentConversations.map((conv, idx) => (
-                <div 
-                  key={idx}
-                  className="p-3 bg-gray-50 rounded-xl border-2 border-gray-200 hover:border-purple-300 transition-colors cursor-pointer"
-                  onClick={() => setAiQuery(conv.question)}
-                >
-                  <p className="font-semibold text-gray-800 text-sm mb-1 line-clamp-2">
-                    {conv.question}
-                  </p>
-                  <p className="text-xs text-gray-500">{conv.time}</p>
-                </div>
-              ))}
-            </div>
-          </div>
-
-          {/* AI Tips */}
-          <div className="bg-gradient-to-br from-orange-100 to-pink-100 rounded-3xl p-6 shadow-xl border-4 border-orange-200">
-            <h2 className="text-2xl font-black text-gray-800 mb-4 flex items-center gap-3">
-              <span className="text-3xl">💫</span> Pro Tips
-            </h2>
-            <div className="space-y-3">
-              {[
-                "Be specific with your questions for better answers",
-                "Ask for step-by-step explanations",
-                "Request examples to understand better",
-                "Use the quick features for common tasks"
-              ].map((tip, idx) => (
-                <div key={idx} className="flex items-start gap-2">
-                  <span className="text-lg">✨</span>
-                  <p className="text-gray-700 text-sm">{tip}</p>
-                </div>
-              ))}
-            </div>
-          </div>
-
-          {/* Fun Facts */}
-          <div className="bg-gradient-to-br from-purple-100 to-blue-100 rounded-3xl p-6 shadow-xl border-4 border-purple-200">
-            <h2 className="text-2xl font-black text-gray-800 mb-4 flex items-center gap-3">
-              <span className="text-3xl">🌠</span> Did You Know?
-            </h2>
-            <div className="text-gray-700 space-y-2">
-              <p className="text-sm">
-                <strong>Fun Fact:</strong> The AI can explain concepts in multiple ways until you understand!
-              </p>
-              <p className="text-sm">
-                <strong>Tip:</strong> Ask "Can you give me a real-world example?" to make learning more relatable!
-              </p>
-            </div>
-          </div>
-        </div>
-      </div>
-    </div>
-  );
-
+  // ORIGINAL Overview content (keeps everything you had)
   const renderOverview = () => (
     <>
       {/* Header */}
@@ -509,7 +357,7 @@ Remember, learning is a journey! 🚀 Would you like me to elaborate on any spec
         </div>
       </div>
 
-      {/* Progress Section */}
+      {/* Progress Section (small) */}
       <div className="bg-white rounded-3xl p-6 shadow-xl border-4 border-green-200">
         <div className="flex items-center gap-3 mb-6">
           <span className="text-4xl">📈</span>
@@ -541,6 +389,134 @@ Remember, learning is a journey! 🚀 Would you like me to elaborate on any spec
     </>
   );
 
+  // Standalone Progress page (only this section)
+  const renderProgressOnly = () => (
+    <div className="space-y-6">
+      <div className="text-center mb-8">
+        <div className="flex items-center justify-center gap-3 mb-4">
+          <span className="text-6xl animate-pulse">📈</span>
+          <h1 className="text-4xl md:text-5xl font-black text-gray-800">
+            My Learning Progress
+          </h1>
+        </div>
+        <p className="text-gray-600">Detailed view of your subject progress.</p>
+      </div>
+
+      <div className="bg-white rounded-3xl p-6 shadow-xl border-4 border-green-200">
+        {['Math', 'Science', 'English'].map((subject, idx) => {
+          const progress = [85, 70, 92][idx];
+          const colors = ['bg-blue-500', 'bg-green-500', 'bg-purple-500'][idx];
+          return (
+            <div key={subject} className="mb-6">
+              <div className="flex justify-between mb-2">
+                <span className="font-bold text-gray-700 text-lg">{subject}</span>
+                <span className="font-black text-gray-800 text-lg">{progress}%</span>
+              </div>
+              <div className="w-full bg-gray-200 rounded-full h-6 border-2 border-gray-300 overflow-hidden">
+                <div 
+                  className={`${colors} h-full rounded-full flex items-center justify-end pr-2 transition-all duration-500`}
+                  style={{ width: `${progress}%` }}
+                >
+                  <span className="text-white text-xs font-bold">⭐</span>
+                </div>
+              </div>
+            </div>
+          );
+        })}
+      </div>
+    </div>
+  );
+
+  // Standalone Badges page (only this section)
+  const renderBadgesOnly = () => (
+    <div className="space-y-6">
+      <div className="text-center mb-8">
+        <div className="flex items-center justify-center gap-3 mb-4">
+          <span className="text-6xl">🏆</span>
+          <h1 className="text-4xl md:text-5xl font-black text-gray-800">My Badges</h1>
+        </div>
+        <p className="text-gray-600">All your achievements & earned badges.</p>
+      </div>
+
+      <div className="bg-white rounded-3xl p-6 shadow-xl border-4 border-yellow-200">
+        <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-6">
+          {recentBadges.map((badge, idx) => (
+            <div 
+              key={idx}
+              className="bg-gradient-to-br from-yellow-100 to-orange-100 rounded-2xl p-6 text-center shadow-lg transform hover:scale-105 transition-transform"
+            >
+              <div className="w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-2 text-3xl">
+                {badge.icon}
+              </div>
+              <p className="font-bold text-gray-800">{badge.name}</p>
+            </div>
+          ))}
+        </div>
+      </div>
+    </div>
+  );
+
+  // AI page (kept simple as before)
+  const renderAIPage = () => (
+    <div className="space-y-6">
+      <div className="text-center mb-8">
+        <div className="flex items-center justify-center gap-3 mb-4">
+          <span className="text-6xl animate-pulse">🤖</span>
+          <h1 className="text-4xl md:text-5xl font-black text-gray-800">
+            Your Personal <span className="bg-gradient-to-r from-purple-600 to-blue-600 bg-clip-text text-transparent">AI Tutor</span>
+          </h1>
+        </div>
+        <p className="text-xl text-gray-600 max-w-2xl mx-auto">
+          Get instant help with homework, explanations, and study tips. Powered by advanced AI to make learning fun! ✨
+        </p>
+      </div>
+
+      <div className="bg-white rounded-3xl p-6 shadow-xl border-4 border-blue-200">
+        <h2 className="text-2xl font-black text-gray-800 mb-4 flex items-center gap-3">
+          <span className="text-3xl">💬</span> Ask Me Anything!
+        </h2>
+        <form onSubmit={handleAiSubmit} className="space-y-4">
+          <textarea
+            value={aiQuery}
+            onChange={(e) => setAiQuery(e.target.value)}
+            placeholder="Ask about math, science, history, or anything you're learning... 🌟"
+            className="w-full h-32 p-4 border-4 border-purple-200 rounded-2xl resize-none focus:outline-none focus:border-purple-400 transition-colors text-lg"
+            disabled={isLoading}
+          />
+          <button
+            type="submit"
+            disabled={isLoading || !aiQuery.trim()}
+            className="w-full bg-gradient-to-r from-purple-600 to-blue-600 text-white py-4 rounded-2xl font-bold text-lg hover:shadow-xl transform hover:scale-105 transition-all disabled:opacity-50"
+          >
+            {isLoading ? 'Thinking...' : 'Get AI Help! 🎯'}
+          </button>
+        </form>
+
+        {aiResponse && (
+          <div className="mt-6 p-4 bg-gradient-to-br from-green-50 to-blue-50 rounded-2xl border-4 border-green-200">
+            <div className="text-gray-700 whitespace-pre-wrap leading-relaxed">
+              {aiResponse}
+            </div>
+          </div>
+        )}
+      </div>
+    </div>
+  );
+
+  // Render main content depending on active tab.
+  const renderContent = () => {
+    switch (activeTab) {
+      case 'progress':
+        return renderProgressOnly();
+      case 'badges':
+        return renderBadgesOnly();
+      case 'ai':
+        return renderAIPage();
+      default:
+        return renderOverview();
+    }
+  };
+
   return (
     <div className="flex min-h-screen bg-gradient-to-br from-blue-50 via-purple-50 to-pink-50">
       <Sidebar 
@@ -554,7 +530,7 @@ Remember, learning is a journey! 🚀 Would you like me to elaborate on any spec
       />
       
       <main className="flex-1 p-4 md:p-8 ml-0 md:ml-64">
-        {activeTab === 'ai' ? renderAIPage() : renderOverview()}
+        {renderContent()}
       </main>
     </div>
   );
