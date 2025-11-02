@@ -1,9 +1,11 @@
 import React, { useState } from 'react';
+// Remove this line:
+// import logo from '../assets/beebrightlogo.jpg';
 import { useAuth } from '../context/AuthContext';
 import { Eye, EyeOff, Mail, Lock, ArrowLeft } from 'lucide-react';
 
-const Login = ({ onBack }) => {
-  const { login } = useAuth();
+const Login = ({ onBack, onForgotPassword }) => {
+  const { login, showNotification } = useAuth();
   const [formData, setFormData] = useState({
     email: '',
     password: ''
@@ -53,7 +55,7 @@ const Login = ({ onBack }) => {
       ...formData,
       [e.target.name]: e.target.value
     });
-    setError(''); // Clear error when user types
+    setError('');
   };
 
   const handleSubmit = async (e) => {
@@ -85,6 +87,8 @@ const Login = ({ onBack }) => {
         grade: user.grade,
         avatar: user.avatar
       });
+
+      showNotification('Logged in successfully', 'success');
 
       setIsLoading(false);
     }, 1000);
@@ -186,9 +190,13 @@ const Login = ({ onBack }) => {
                 <input type="checkbox" className="w-4 h-4 rounded border-neutral-300" />
                 <span className="text-sm text-neutral-600">Remember me</span>
               </label>
-              <a href="#" className="text-sm text-primary-600 hover:text-primary-700 font-semibold">
+              <button
+                type="button"
+                onClick={onForgotPassword}
+                className="text-sm text-primary-600 hover:text-primary-700 font-semibold"
+              >
                 Forgot Password?
-              </a>
+              </button>
             </div>
 
             {/* Login Button */}
@@ -208,7 +216,7 @@ const Login = ({ onBack }) => {
             </button>
           </form>
 
-          {/* CHANGED: No signup, only enrollment link */}
+          {/* Enrollment link */}
           <div className="mt-6 text-center">
             <p className="text-neutral-600 text-sm">
               Don't have an account yet?{' '}
