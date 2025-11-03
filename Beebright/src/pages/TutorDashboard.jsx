@@ -11,6 +11,72 @@ const TutorDashboard = ({ onLogout }) => {
   const [aiResponse, setAiResponse] = useState('');
   const [isLoading, setIsLoading] = useState(false);
 
+  // PASTE THE GEMINI FUNCTION HERE
+  // TutorDashboard.jsx - Update the generateContentWithGemini function
+
+const generateContentWithGemini = async (prompt) => {
+  const API_KEY = 'AIzaSyAc0zAAYFOotLS-3CW4bwffeWD224lHkl0';
+  const API_URL = 'https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent';
+
+  try {
+    const response = await fetch(API_URL, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'X-goog-api-key': API_KEY,
+      },
+      body: JSON.stringify({
+        contents: [{
+          parts: [{
+            text: prompt
+          }]
+        }]
+      }),
+    });
+
+    if (!response.ok) {
+      const errorData = await response.json();
+      throw new Error(`API request failed with status ${response.status}: ${errorData.error?.message || 'Unknown error'}`);
+    }
+
+    const data = await response.json();
+    
+    if (data.candidates && data.candidates[0] && data.candidates[0].content) {
+      return data.candidates[0].content.parts[0].text;
+    } else {
+      console.error('Unexpected API response:', data);
+      throw new Error('Unexpected response format from Gemini API');
+    }
+  } catch (error) {
+    console.error('Error calling Gemini API:', error);
+    throw error;
+  }
+};
+
+// Then update the handleAiSubmit function:
+const handleAiSubmit = async (e) => {
+  e.preventDefault();
+  if (!aiQuery.trim()) return;
+  
+  setIsLoading(true);
+  setAiResponse('');
+  
+  try {
+    // Add context for teaching assistant
+    const teachingPrompt = `As an educational teaching assistant, please provide helpful, professional teaching advice for: ${aiQuery}. Focus on practical classroom strategies, lesson planning, student engagement, and educational best practices.`;
+    
+    const response = await generateContentWithGemini(teachingPrompt);
+    setAiResponse(response);
+  } catch (error) {
+    console.error('Error getting AI response:', error);
+    setAiResponse(`I apologize, but I'm having trouble connecting to the teaching assistant right now. Please try again in a moment. Error: ${error.message}`);
+  } finally {
+    setIsLoading(false);
+  }
+};
+
+  // ... rest of your existing code ...
+
   // State for quick action modals
   const [showAttendanceModal, setShowAttendanceModal] = useState(false);
   const [showGradesModal, setShowGradesModal] = useState(false);
@@ -556,34 +622,6 @@ const TutorDashboard = ({ onLogout }) => {
     { question: "Classroom management techniques", time: "3 days ago" }
   ];
 
-  const handleAiSubmit = (e) => {
-    e.preventDefault();
-    if (!aiQuery.trim()) return;
-    
-    setIsLoading(true);
-    // Simulate AI response
-    setTimeout(() => {
-      setAiResponse(`I'd be happy to help with your teaching question about "${aiQuery}"! Here are some professional insights:
-
-🎯 **Teaching Strategies:**
-• Differentiated instruction approaches
-• Hands-on learning activities
-• Assessment techniques
-
-📚 **Resource Recommendations:**
-• Lesson materials and tools
-• Professional development resources
-• Classroom management tips
-
-💡 **Best Practices:**
-• Evidence-based teaching methods
-• Student engagement techniques
-• Progress monitoring approaches
-
-Would you like me to elaborate on any specific aspect or provide more detailed resources?`);
-      setIsLoading(false);
-    }, 2000);
-  };
 
   const handleQuickPrompt = (prompt) => {
     setAiQuery(prompt);

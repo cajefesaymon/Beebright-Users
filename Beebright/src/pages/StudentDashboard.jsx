@@ -165,6 +165,69 @@ const StudentDashboard = ({ onLogout }) => {
   const [aiResponse, setAiResponse] = useState('');
   const [isLoading, setIsLoading] = useState(false);
 
+  // PASTE THE GEMINI FUNCTION HERE
+  // StudentDashboard.jsx - Update the generateContentWithGemini function
+
+// StudentDashboard.jsx - Update the generateContentWithGemini function
+
+const generateContentWithGemini = async (prompt) => {
+  const API_KEY = 'AIzaSyAc0zAAYFOotLS-3CW4bwffeWD224lHkl0';
+  const API_URL = 'https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent';
+
+  try {
+    const response = await fetch(API_URL, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'X-goog-api-key': API_KEY,
+      },
+      body: JSON.stringify({
+        contents: [{
+          parts: [{
+            text: prompt
+          }]
+        }]
+      }),
+    });
+
+    if (!response.ok) {
+      const errorData = await response.json();
+      throw new Error(`API request failed with status ${response.status}: ${errorData.error?.message || 'Unknown error'}`);
+    }
+
+    const data = await response.json();
+    
+    if (data.candidates && data.candidates[0] && data.candidates[0].content) {
+      return data.candidates[0].content.parts[0].text;
+    } else {
+      console.error('Unexpected API response:', data);
+      throw new Error('Unexpected response format from Gemini API');
+    }
+  } catch (error) {
+    console.error('Error calling Gemini API:', error);
+    throw error;
+  }
+};
+
+// Then update the handleAiSubmit function:
+const handleAiSubmit = async (e) => {
+  e.preventDefault();
+  if (!aiQuery.trim()) return;
+  
+  setIsLoading(true);
+  setAiResponse(''); // Clear previous response
+  
+  try {
+    const response = await generateContentWithGemini(aiQuery);
+    setAiResponse(response);
+  } catch (error) {
+    console.error('Error getting AI response:', error);
+    setAiResponse(`I apologize, but I'm having trouble connecting right now. Please try again in a moment. Error: ${error.message}`);
+  } finally {
+    setIsLoading(false);
+  }
+};
+
   const stats = [
     { 
       label: 'Total Classes', 
@@ -246,23 +309,7 @@ const StudentDashboard = ({ onLogout }) => {
     { question: "Help me with French vocabulary", time: "2 days ago" }
   ];
 
-  const handleAiSubmit = (e) => {
-    e.preventDefault();
-    if (!aiQuery.trim()) return;
-    
-    setIsLoading(true);
-    // Simulate AI response
-    setTimeout(() => {
-      setAiResponse(`I'd be happy to help with "${aiQuery}"! Here's a detailed explanation:
-
-1. **Key Concepts**: Let me break this down into simple steps
-2. **Examples**: Here are some practical applications
-3. **Practice**: Try these exercises to reinforce your understanding
-
-Remember, learning is a journey! 🚀 Would you like me to elaborate on any specific part?`);
-      setIsLoading(false);
-    }, 2000);
-  };
+  
 
   const handleQuickPrompt = (prompt) => {
     setAiQuery(prompt);
