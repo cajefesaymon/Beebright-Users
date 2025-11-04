@@ -74,12 +74,6 @@ const LandingPage = ({ onLogin, onGoToLogin }) => {
                 >
                   I'm a Student 📚
                 </button>
-                <button
-                  onClick={() => onLogin('parent')}
-                  className="bg-white text-gray-800 px-8 py-4 rounded-2xl font-bold text-lg hover:bg-gray-50 transform hover:scale-105 transition shadow-lg border-2 border-gray-200"
-                >
-                  I'm a Parent 👨‍👩‍👧
-                </button>
               </div>
               
               {/* ADDED: Already have account section */}

@@ -14,6 +14,7 @@ const connectDB = require('./config/db');
 const authRoutes = require('./routes/auth');
 const userRoutes = require('./routes/users');
 const itemRoutes = require('./routes/items');
+const enrollRoutes = require('./routes/enroll');
 const { notFound, errorHandler } = require('./middlewares/errorHandler');
 
 const app = express();
@@ -39,6 +40,7 @@ app.use(
 app.use('/api/auth', authRoutes);
 app.use('/api/users', userRoutes);
 app.use('/api/items', itemRoutes);
+app.use('/api/enroll', enrollRoutes);
 
 // Health check
 app.get('/api/health', (req, res) => {
