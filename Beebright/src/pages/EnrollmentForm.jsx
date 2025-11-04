@@ -6,6 +6,7 @@ const EnrollmentForm = ({ onBack, onSuccess }) => {
     age: '',
     grade: '',
     school: '',
+    password: '',
     contactEmail: '',
     contactPhone: '',
     address: '',
@@ -26,59 +27,64 @@ const EnrollmentForm = ({ onBack, onSuccess }) => {
     setError('');
   };
 
-  const handleSubmit = async () => {
-    setLoading(true);
-    setError('');
+ const handleSubmit = async () => {
+  setLoading(true);
+  setError('');
 
-    try {
-      if (!formData.studentName || !formData.age || !formData.grade || 
-          !formData.school || !formData.contactEmail) {
-        throw new Error('Please fill in all required fields');
-      }
-
-      const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-      if (!emailRegex.test(formData.contactEmail)) {
-        throw new Error('Please enter a valid email address');
-      }
-
-      const ageNum = parseInt(formData.age);
-      if (isNaN(ageNum) || ageNum < 5 || ageNum > 25) {
-        throw new Error('Please enter a valid age (5-25)');
-      }
-
-      // FIXED: Changed from /api/enrollments to /api/enroll to match your backend
-      const API_URL = 'http://localhost:5000/api/enroll';
-      
-      console.log('Submitting to:', API_URL); // Debug log
-      console.log('Form data:', { ...formData, age: ageNum }); // Debug log
-      
-      const response = await fetch(API_URL, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          ...formData,
-          age: ageNum
-        })
-      });
-
-      const data = await response.json();
-
-      if (!response.ok) {
-        throw new Error(data.message || 'Enrollment failed');
-      }
-
-      setSuccess(true);
-      if (onSuccess) onSuccess();
-
-    } catch (err) {
-      console.error('Enrollment error:', err);
-      setError(err.message || 'Failed to submit enrollment. Please try again.');
-    } finally {
-      setLoading(false);
+  try {
+    // ADD password to the required fields check
+    if (!formData.studentName || !formData.age || !formData.grade || 
+        !formData.school || !formData.password || !formData.contactEmail) {
+      throw new Error('Please fill in all required fields');
     }
-  };
+
+    // ADD password length validation (matches the backend and the UI hint)
+    if (formData.password.length < 8) {
+      throw new Error('Password must be at least 8 characters long');
+    }
+
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRegex.test(formData.contactEmail)) {
+      throw new Error('Please enter a valid email address');
+    }
+
+    const ageNum = parseInt(formData.age);
+    if (isNaN(ageNum) || ageNum < 5 || ageNum > 25) {
+      throw new Error('Please enter a valid age (5-25)');
+    }
+
+    const API_URL = 'http://localhost:5000/api/enroll';
+    
+    console.log('Submitting to:', API_URL); // Debug log
+    console.log('Form data:', { ...formData, age: ageNum }); // Debug log
+    
+    const response = await fetch(API_URL, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        ...formData,
+        age: ageNum
+      })
+    });
+
+    const data = await response.json();
+
+    if (!response.ok) {
+      throw new Error(data.message || 'Enrollment failed');
+    }
+
+    setSuccess(true);
+    if (onSuccess) onSuccess();
+
+  } catch (err) {
+    console.error('Enrollment error:', err);
+    setError(err.message || 'Failed to submit enrollment. Please try again.');
+  } finally {
+    setLoading(false);
+  }
+};
 
   if (success) {
     return (
@@ -97,7 +103,6 @@ const EnrollmentForm = ({ onBack, onSuccess }) => {
             </p>
             <ul className="text-left text-gray-600 space-y-2 max-w-md mx-auto">
               <li>✅ We'll review your application within 1-2 business days</li>
-              <li>✅ You'll receive an email with your login credentials</li>
               <li>✅ Once approved, you can access your student dashboard</li>
             </ul>
           </div>
@@ -220,6 +225,23 @@ const EnrollmentForm = ({ onBack, onSuccess }) => {
                     placeholder="ABC Elementary School"
                     className="w-full px-4 py-3 rounded-xl border-2 border-gray-300 focus:border-amber-500 focus:outline-none"
                   />
+                </div>
+
+                <div>
+                  <label className="block text-gray-700 font-semibold mb-2">
+                    Password <span className="text-red-500">*</span>
+                  </label>
+                  <input
+                    type="password"
+                    name="password"
+                    value={formData.password}
+                    onChange={handleChange}
+                    placeholder="Choose a secure password"
+                    className="w-full px-4 py-3 rounded-xl border-2 border-gray-300 focus:border-amber-500 focus:outline-none"
+                  />
+                  <p className="text-sm text-gray-500 mt-1">
+                    At least 8 characters long
+                  </p>
                 </div>
               </div>
             </div>

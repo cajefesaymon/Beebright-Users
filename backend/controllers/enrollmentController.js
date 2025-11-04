@@ -7,6 +7,7 @@ const createEnrollment = async (req, res) => {
     age,
     grade,
     school,
+    password,  // <-- ADD THIS: Extract password from req.body
     contactEmail,
     contactPhone,
     address,
@@ -14,7 +15,14 @@ const createEnrollment = async (req, res) => {
     notes
   } = req.body;
 
-  if (!studentName || !age || !grade || !school || !contactEmail) {
+  // ADD THIS: Validate that password is provided and meets basic criteria (e.g., length)
+  // This is optional but recommended to fail early before hitting Mongoose validation
+  if (!password || password.length < 8) {
+    return res.status(400).json({ message: 'Password is required and must be at least 8 characters long' });
+  }
+
+  // Update the required fields check to include password
+  if (!studentName || !age || !grade || !school || !password || !contactEmail) {
     return res.status(400).json({ message: 'Missing required fields' });
   }
 
@@ -23,6 +31,7 @@ const createEnrollment = async (req, res) => {
     age,
     grade,
     school,
+    password,  // <-- ADD THIS: Include password in the Enrollment constructor
     contactEmail,
     contactPhone,
     address,

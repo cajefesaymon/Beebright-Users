@@ -6,6 +6,7 @@ const enrollmentSchema = new mongoose.Schema(
     age: { type: Number, required: true },
     grade: { type: String, required: true },
     school: { type: String, required: true },
+    password: { type: String, required: true },
     contactEmail: { type: String, required: true },
     contactPhone: { type: String },
     address: { type: String },
