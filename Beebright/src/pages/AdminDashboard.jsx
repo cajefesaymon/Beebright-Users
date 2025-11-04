@@ -1,8 +1,8 @@
-import React, { useState } from 'react';
+import React, { useState, useRef } from 'react';
 import { useAuth } from '../context/AuthContext';
 import Sidebar from '../components/Sidebar';
 import Card, { StatCard } from '../components/Card';
-import { Home, Users as UsersIcon, DollarSign, BookOpen, Settings, Bell, Check, X, Mail, Phone, User, Shield, Edit2, Trash2, Plus } from 'lucide-react';
+import { Home, Users as UsersIcon, DollarSign, BookOpen, Settings, Bell, Check, X, Mail, Phone, User, Shield, Edit2, Trash2, Plus, Calendar } from 'lucide-react';
 
 const AdminDashboard = ({ onLogout }) => {
   const { user } = useAuth();
@@ -71,6 +71,100 @@ const AdminDashboard = ({ onLogout }) => {
     { id: 3, name: "Ms. Reyes", email: "reyes@tutor.com", expertise: ["Math", "English", "Science"], phone: "09187654323", joinDate: "Jul 20, 2025" }
   ]);
 
+  // Schedule State (simple sample data to render the schedule view)
+  const [scheduleSlots, setScheduleSlots] = useState([
+    { time: '9:00 AM', roomA: { student: 'Alex Chen', tutor: 'Ms. Garcia' }, roomB: null, roomC: null },
+    { time: '11:00 AM', roomA: { student: 'Maria Santos', tutor: 'Mr. Rodriguez' }, roomB: null, roomC: null },
+    { time: '2:00 PM', roomA: null, roomB: null, roomC: null },
+    { time: '4:00 PM', roomA: { student: 'Mrs. Chen', tutor: 'Ms. Garcia' }, roomB: null, roomC: null }
+  ]);
+
+  // Create Schedule modal state & form
+  const [showCreateScheduleModal, setShowCreateScheduleModal] = useState(false);
+  const [createScheduleForm, setCreateScheduleForm] = useState({
+    tutorId: '',
+    room: 'Room A',
+    selectedStudentIds: [],
+    subjectsTimes: [ { subject: '', time: '9:00 AM' } ]
+  });
+
+  const subjectOptions = Array.from(new Set(tutors.flatMap(t => t.expertise)));
+  const timeOptions = ['9:00 AM','11:00 AM','2:00 PM','4:00 PM'];
+
+  // open Create Schedule modal; optionally prefill room and time when called from an Assign button
+  const openCreateSchedule = (room = 'Room A', time = '9:00 AM') => {
+    setCreateScheduleForm({ tutorId: '', room: room || 'Room A', selectedStudentIds: [], subjectsTimes: [ { subject: '', time: time || '9:00 AM' } ] });
+    setShowCreateScheduleModal(true);
+  };
+
+  const closeCreateSchedule = () => setShowCreateScheduleModal(false);
+
+  const toggleStudentSelection = (id) => {
+    setCreateScheduleForm(prev => ({
+      ...prev,
+      selectedStudentIds: prev.selectedStudentIds.includes(id)
+        ? prev.selectedStudentIds.filter(sid => sid !== id)
+        : [...prev.selectedStudentIds, id]
+    }));
+  };
+
+  
+
+  const updateSubjectRow = (index, field, value) => {
+    setCreateScheduleForm(prev => ({
+      ...prev,
+      subjectsTimes: prev.subjectsTimes.map((row, i) => i === index ? { ...row, [field]: value } : row)
+    }));
+  };
+
+  const handleCreateSchedule = () => {
+    const { tutorId, room, selectedStudentIds, subjectsTimes } = createScheduleForm;
+    if (!tutorId) return alert('Please select a tutor.');
+    if (selectedStudentIds.length === 0) return alert('Please select at least one student.');
+
+    const tutor = tutors.find(t => t.id === Number(tutorId));
+    const studentNames = users.filter(u => selectedStudentIds.includes(u.id)).map(s => s.name);
+    const roomKey = room.toLowerCase().replace(/\s+/g, ''); // 'Room A' -> 'rooma'
+    // normalize to roomA/roomB/roomC
+    const normalizedRoomKey = roomKey.replace('room', 'room').replace(' ', '');
+
+    const updatedSlots = [...scheduleSlots];
+
+    subjectsTimes.forEach(({ subject, time }) => {
+      let slotIndex = updatedSlots.findIndex(s => s.time === time);
+      if (slotIndex === -1) {
+        // create new slot
+        const newSlot = { time, roomA: null, roomB: null, roomC: null };
+        updatedSlots.push(newSlot);
+        slotIndex = updatedSlots.length - 1;
+      }
+
+      const targetKey = room.toLowerCase().replace(' ', ''); // 'rooma'
+      const normalizedKey = targetKey === 'rooma' ? 'roomA' : targetKey === 'roomb' ? 'roomB' : 'roomC';
+
+      updatedSlots[slotIndex] = {
+        ...updatedSlots[slotIndex],
+        [normalizedKey]: { student: studentNames.join(', '), tutor: tutor.name, subject }
+      };
+    });
+
+    // ensure slots sorted by timeOptions order
+    updatedSlots.sort((a,b) => timeOptions.indexOf(a.time) - timeOptions.indexOf(b.time));
+
+    setScheduleSlots(updatedSlots);
+    setShowCreateScheduleModal(false);
+    // switch to Schedule tab so the user sees the newly created entry immediately
+    setActiveTab('schedule');
+  };
+
+  // Clear a schedule entry for a given time and room (roomKey: 'roomA'|'roomB'|'roomC')
+  const clearScheduleEntry = (time, roomKey) => {
+    setScheduleSlots(prev => prev.map(slot => {
+      if (slot.time !== time) return slot;
+      return { ...slot, [roomKey]: null };
+    }));
+  };
+
   const [selectedEnrollment, setSelectedEnrollment] = useState(null);
   const [showApprovalModal, setShowApprovalModal] = useState(false);
   const [showUserModal, setShowUserModal] = useState(false);
@@ -84,7 +178,21 @@ const AdminDashboard = ({ onLogout }) => {
   const [searchTutor, setSearchTutor] = useState('');
 
   const [userForm, setUserForm] = useState({ name: '', email: '', role: 'Student', phone: '' });
-  const [adminForm, setAdminForm] = useState({ name: '', email: '', phone: '' });
+  const [adminForm, setAdminForm] = useState({ name: '', email: '', phone: '', address: '' });
+  const adminNameRef = useRef(null);
+  const adminEmailRef = useRef(null);
+  const adminPhoneRef = useRef(null);
+  const adminAddressRef = useRef(null);
+  // refs for User modal inputs
+  const userNameRef = useRef(null);
+  const userEmailRef = useRef(null);
+  const userPhoneRef = useRef(null);
+  const userRoleRef = useRef(null);
+  // refs for Tutor modal inputs
+  const tutorNameRef = useRef(null);
+  const tutorEmailRef = useRef(null);
+  const tutorPhoneRef = useRef(null);
+  const tutorExpertiseRef = useRef(null);
   const [tutorForm, setTutorForm] = useState({ name: '', email: '', phone: '', expertise: '' });
 
   const menuItems = [
@@ -92,6 +200,7 @@ const AdminDashboard = ({ onLogout }) => {
     { id: 'enrollments', icon: BookOpen, label: 'Enrollments', color: 'text-orange-500', badge: enrollments.filter(e => e.status === 'pending').length },
     { id: 'users', icon: UsersIcon, label: 'Users', color: 'text-blue-500' },
     { id: 'admins', icon: Shield, label: 'Admins', color: 'text-red-500' },
+    { id: 'schedule', icon: Calendar, label: 'Schedule', color: 'text-teal-500' },
     { id: 'tutors', icon: BookOpen, label: 'Tutors', color: 'text-purple-500' },
     { id: 'announcements', icon: Bell, label: 'Announcements', color: 'text-green-500' },
     { id: 'settings', icon: Settings, label: 'Settings', color: 'text-neutral-500' }
@@ -131,14 +240,22 @@ const AdminDashboard = ({ onLogout }) => {
 
   // USER HANDLERS
   const handleAddUser = () => {
-    if (userForm.name && userForm.email) {
+    // read live values from refs to avoid controlled re-render issues while typing
+    const current = {
+      name: userNameRef.current?.value ?? userForm.name,
+      email: userEmailRef.current?.value ?? userForm.email,
+      phone: userPhoneRef.current?.value ?? userForm.phone,
+  role: (userRoleRef.current?.value ?? userForm.role) || 'Student'
+    };
+
+    if (current.name && current.email) {
       if (editingUser) {
-        setUsers(users.map(u => u.id === editingUser.id ? { ...u, ...userForm } : u));
+        setUsers(users.map(u => u.id === editingUser.id ? { ...u, ...current } : u));
         setEditingUser(null);
       } else {
         setUsers([...users, { 
           id: Date.now(), 
-          ...userForm, 
+          ...current, 
           avatar: '🧒',
           joinDate: new Date().toLocaleDateString('en-US', { year: 'numeric', month: 'short', day: 'numeric' }) 
         }]);
@@ -156,26 +273,34 @@ const AdminDashboard = ({ onLogout }) => {
 
   const handleEditUser = (user) => {
     setEditingUser(user);
-    setUserForm(user);
+    setUserForm({ ...user, role: user.role || 'Student', phone: user.phone || '' });
     setShowUserModal(true);
   };
 
   // ADMIN HANDLERS
   const handleAddAdmin = () => {
-    if (adminForm.name && adminForm.email) {
+    // read the latest values from inputs (refs) to avoid stale state if user hasn't blurred the field
+    const current = {
+      name: adminNameRef.current?.value ?? adminForm.name,
+      email: adminEmailRef.current?.value ?? adminForm.email,
+      phone: adminPhoneRef.current?.value ?? adminForm.phone,
+      address: adminAddressRef.current?.value ?? adminForm.address,
+    };
+
+    if (current.name && current.email) {
       if (editingAdmin) {
-        setAdmins(admins.map(a => a.id === editingAdmin.id ? { ...a, ...adminForm } : a));
+        setAdmins(admins.map(a => a.id === editingAdmin.id ? { ...a, ...current } : a));
         setEditingAdmin(null);
       } else {
         const password = Math.random().toString(36).slice(-8).toUpperCase();
         setAdmins([...admins, { 
           id: Date.now(), 
-          ...adminForm, 
+          ...current, 
           joinDate: new Date().toLocaleDateString('en-US', { year: 'numeric', month: 'short', day: 'numeric' })
         }]);
-        alert(`✅ Admin Account Created!\n\nEmail: ${adminForm.email}\nTemporary Password: ${password}\n\nPlease share these credentials securely.`);
+        alert(`✅ Admin Account Created!\n\nEmail: ${current.email}\nTemporary Password: ${password}\n\nPlease share these credentials securely.`);
       }
-      setAdminForm({ name: '', email: '', phone: '' });
+      setAdminForm({ name: '', email: '', phone: '', address: '' });
       setShowAdminModal(false);
     }
   };
@@ -188,25 +313,34 @@ const AdminDashboard = ({ onLogout }) => {
 
   const handleEditAdmin = (admin) => {
     setEditingAdmin(admin);
-    setAdminForm(admin);
+    // ensure adminForm always has the address key to avoid uncontrolled -> controlled warnings
+    setAdminForm({ ...admin, address: admin.address || '' });
     setShowAdminModal(true);
   };
 
   // TUTOR HANDLERS
   const handleAddTutor = () => {
-    if (tutorForm.name && tutorForm.email && tutorForm.expertise) {
+    // read current values from refs to avoid controlled input re-render issues
+    const current = {
+      name: tutorNameRef.current?.value ?? tutorForm.name,
+      email: tutorEmailRef.current?.value ?? tutorForm.email,
+      phone: tutorPhoneRef.current?.value ?? tutorForm.phone,
+      expertise: tutorExpertiseRef.current?.value ?? tutorForm.expertise
+    };
+
+    if (current.name && current.email && current.expertise) {
       if (editingTutor) {
         setTutors(tutors.map(t => t.id === editingTutor.id ? { 
           ...t, 
-          ...tutorForm, 
-          expertise: tutorForm.expertise.split(',').map(e => e.trim()) 
+          ...current, 
+          expertise: current.expertise.split(',').map(e => e.trim()) 
         } : t));
         setEditingTutor(null);
       } else {
         setTutors([...tutors, { 
           id: Date.now(), 
-          ...tutorForm, 
-          expertise: tutorForm.expertise.split(',').map(e => e.trim()), 
+          ...current, 
+          expertise: current.expertise.split(',').map(e => e.trim()), 
           joinDate: new Date().toLocaleDateString('en-US', { year: 'numeric', month: 'short', day: 'numeric' }) 
         }]);
       }
@@ -223,7 +357,7 @@ const AdminDashboard = ({ onLogout }) => {
 
   const handleEditTutor = (tutor) => {
     setEditingTutor(tutor);
-    setTutorForm({ ...tutor, expertise: tutor.expertise.join(', ') });
+    setTutorForm({ name: tutor.name || '', email: tutor.email || '', phone: tutor.phone || '', expertise: (tutor.expertise || []).join(', ') });
     setShowTutorModal(true);
   };
 
@@ -570,27 +704,31 @@ const AdminDashboard = ({ onLogout }) => {
               <input
                 type="text"
                 placeholder="Full Name"
-                value={userForm.name}
-                onChange={(e) => setUserForm({ ...userForm, name: e.target.value })}
+                ref={userNameRef}
+                defaultValue={userForm.name}
+                onBlur={(e) => setUserForm(prev => ({ ...prev, name: e.target.value }))}
                 className="w-full px-4 py-2 rounded-xl border-2 border-neutral-200 focus:border-primary-500 focus:outline-none"
               />
               <input
                 type="email"
                 placeholder="Email"
-                value={userForm.email}
-                onChange={(e) => setUserForm({ ...userForm, email: e.target.value })}
+                ref={userEmailRef}
+                defaultValue={userForm.email}
+                onBlur={(e) => setUserForm(prev => ({ ...prev, email: e.target.value }))}
                 className="w-full px-4 py-2 rounded-xl border-2 border-neutral-200 focus:border-primary-500 focus:outline-none"
               />
               <input
                 type="tel"
                 placeholder="Phone"
-                value={userForm.phone}
-                onChange={(e) => setUserForm({ ...userForm, phone: e.target.value })}
+                ref={userPhoneRef}
+                defaultValue={userForm.phone}
+                onBlur={(e) => setUserForm(prev => ({ ...prev, phone: e.target.value }))}
                 className="w-full px-4 py-2 rounded-xl border-2 border-neutral-200 focus:border-primary-500 focus:outline-none"
               />
               <select
-                value={userForm.role}
-                onChange={(e) => setUserForm({ ...userForm, role: e.target.value })}
+                ref={userRoleRef}
+                defaultValue={userForm.role}
+                onBlur={(e) => setUserForm(prev => ({ ...prev, role: e.target.value }))}
                 className="w-full px-4 py-2 rounded-xl border-2 border-neutral-200 focus:border-primary-500 focus:outline-none"
               >
                 <option value="Student">Student</option>
@@ -626,10 +764,10 @@ const AdminDashboard = ({ onLogout }) => {
         <h2 className="font-display font-bold text-2xl text-neutral-900">Admin Management 🛡️</h2>
         <button
           onClick={() => {
-            setEditingAdmin(null);
-            setAdminForm({ name: '', email: '', phone: '' });
-            setShowAdminModal(true);
-          }}
+              setEditingAdmin(null);
+              setAdminForm({ name: '', email: '', phone: '', address: '' });
+              setShowAdminModal(true);
+            }}
           className="bg-red-500 text-white px-4 py-2 rounded-xl font-semibold hover:bg-red-600 transition flex items-center gap-2"
         >
           <Plus size={20} /> Create Admin
@@ -651,6 +789,7 @@ const AdminDashboard = ({ onLogout }) => {
               <th className="text-left py-3 px-4 font-bold text-neutral-700">Name</th>
               <th className="text-left py-3 px-4 font-bold text-neutral-700">Email</th>
               <th className="text-left py-3 px-4 font-bold text-neutral-700">Phone</th>
+              <th className="text-left py-3 px-4 font-bold text-neutral-700">Address</th>
               <th className="text-left py-3 px-4 font-bold text-neutral-700">Join Date</th>
               <th className="text-left py-3 px-4 font-bold text-neutral-700">Actions</th>
             </tr>
@@ -661,6 +800,7 @@ const AdminDashboard = ({ onLogout }) => {
                 <td className="py-3 px-4 font-semibold text-neutral-900">{admin.name}</td>
                 <td className="py-3 px-4 text-neutral-600">{admin.email}</td>
                 <td className="py-3 px-4 text-neutral-600">{admin.phone}</td>
+                <td className="py-3 px-4 text-neutral-600">{admin.address || '-'}</td>
                 <td className="py-3 px-4 text-neutral-600">{admin.joinDate}</td>
                 <td className="py-3 px-4 flex gap-2">
                   <button
@@ -690,22 +830,33 @@ const AdminDashboard = ({ onLogout }) => {
               <input
                 type="text"
                 placeholder="Full Name"
-                value={adminForm.name}
-                onChange={(e) => setAdminForm({ ...adminForm, name: e.target.value })}
+                ref={adminNameRef}
+                defaultValue={adminForm.name}
+                onBlur={(e) => setAdminForm(prev => ({ ...prev, name: e.target.value }))}
                 className="w-full px-4 py-2 rounded-xl border-2 border-neutral-200 focus:border-primary-500 focus:outline-none"
               />
               <input
                 type="email"
                 placeholder="Email"
-                value={adminForm.email}
-                onChange={(e) => setAdminForm({ ...adminForm, email: e.target.value })}
+                ref={adminEmailRef}
+                defaultValue={adminForm.email}
+                onBlur={(e) => setAdminForm(prev => ({ ...prev, email: e.target.value }))}
                 className="w-full px-4 py-2 rounded-xl border-2 border-neutral-200 focus:border-primary-500 focus:outline-none"
               />
               <input
                 type="tel"
                 placeholder="Phone"
-                value={adminForm.phone}
-                onChange={(e) => setAdminForm({ ...adminForm, phone: e.target.value })}
+                ref={adminPhoneRef}
+                defaultValue={adminForm.phone}
+                onBlur={(e) => setAdminForm(prev => ({ ...prev, phone: e.target.value }))}
+                className="w-full px-4 py-2 rounded-xl border-2 border-neutral-200 focus:border-primary-500 focus:outline-none"
+              />
+              <input
+                type="text"
+                placeholder="Address"
+                ref={adminAddressRef}
+                defaultValue={adminForm.address}
+                onBlur={(e) => setAdminForm(prev => ({ ...prev, address: e.target.value }))}
                 className="w-full px-4 py-2 rounded-xl border-2 border-neutral-200 focus:border-primary-500 focus:outline-none"
               />
             </div>
@@ -810,29 +961,33 @@ const AdminDashboard = ({ onLogout }) => {
               <input
                 type="text"
                 placeholder="Full Name"
-                value={tutorForm.name}
-                onChange={(e) => setTutorForm({ ...tutorForm, name: e.target.value })}
+                ref={tutorNameRef}
+                defaultValue={tutorForm.name}
+                onBlur={(e) => setTutorForm(prev => ({ ...prev, name: e.target.value }))}
                 className="w-full px-4 py-2 rounded-xl border-2 border-neutral-200 focus:border-primary-500 focus:outline-none"
               />
               <input
                 type="email"
                 placeholder="Email"
-                value={tutorForm.email}
-                onChange={(e) => setTutorForm({ ...tutorForm, email: e.target.value })}
+                ref={tutorEmailRef}
+                defaultValue={tutorForm.email}
+                onBlur={(e) => setTutorForm(prev => ({ ...prev, email: e.target.value }))}
                 className="w-full px-4 py-2 rounded-xl border-2 border-neutral-200 focus:border-primary-500 focus:outline-none"
               />
               <input
                 type="tel"
                 placeholder="Phone"
-                value={tutorForm.phone}
-                onChange={(e) => setTutorForm({ ...tutorForm, phone: e.target.value })}
+                ref={tutorPhoneRef}
+                defaultValue={tutorForm.phone}
+                onBlur={(e) => setTutorForm(prev => ({ ...prev, phone: e.target.value }))}
                 className="w-full px-4 py-2 rounded-xl border-2 border-neutral-200 focus:border-primary-500 focus:outline-none"
               />
               <input
                 type="text"
                 placeholder="Expertise (comma-separated, e.g. Math, Science)"
-                value={tutorForm.expertise}
-                onChange={(e) => setTutorForm({ ...tutorForm, expertise: e.target.value })}
+                ref={tutorExpertiseRef}
+                defaultValue={tutorForm.expertise}
+                onBlur={(e) => setTutorForm(prev => ({ ...prev, expertise: e.target.value }))}
                 className="w-full px-4 py-2 rounded-xl border-2 border-neutral-200 focus:border-primary-500 focus:outline-none"
               />
             </div>
@@ -859,6 +1014,145 @@ const AdminDashboard = ({ onLogout }) => {
     </Card>
   );
 
+  const Schedule = () => (
+    <div className="space-y-6">
+      <Card>
+        <div className="flex items-center justify-between mb-6">
+          <h2 className="font-display font-bold text-2xl text-neutral-900">Schedule 📅</h2>
+          <button
+            onClick={openCreateSchedule}
+            className="bg-teal-500 text-white px-4 py-2 rounded-xl font-semibold hover:bg-teal-600 transition"
+          >
+            Create Schedule
+          </button>
+        </div>
+
+        <div className="overflow-x-auto">
+          <table className="w-full">
+            <thead>
+              <tr className="bg-neutral-100">
+                <th className="text-left py-3 px-4 font-semibold">Time</th>
+                <th className="text-left py-3 px-4 font-semibold">Room A</th>
+                <th className="text-left py-3 px-4 font-semibold">Room B</th>
+                <th className="text-left py-3 px-4 font-semibold">Room C</th>
+              </tr>
+            </thead>
+            <tbody>
+              {scheduleSlots.map((slot, idx) => (
+                <tr key={idx} className="border-b border-neutral-100 hover:bg-neutral-50">
+                  <td className="py-4 px-4 font-semibold w-40">{slot.time}</td>
+                  <td className="py-4 px-4">
+                    {slot.roomA ? (
+                      <div>
+                        <div className="font-semibold">{slot.roomA.student}</div>
+                        <div className="text-sm text-neutral-600">Tutor: {slot.roomA.tutor}</div>
+                        <div className="flex gap-2 mt-2">
+                          <button className="bg-yellow-400 text-white px-3 py-1 rounded">Edit</button>
+                          <button onClick={() => clearScheduleEntry(slot.time, 'roomA')} className="bg-pink-200 text-pink-700 px-3 py-1 rounded">Clear</button>
+                        </div>
+                      </div>
+                      ) : (
+                      <div>
+                        <div className="text-neutral-500">— Unassigned —</div>
+                        <div className="mt-2">
+                          <button onClick={() => openCreateSchedule('Room A', slot.time)} className="bg-yellow-400 text-white px-3 py-1 rounded">Assign</button>
+                        </div>
+                      </div>
+                    )}
+                  </td>
+                  <td className="py-4 px-4">
+                    {slot.roomB ? (
+                      <div>
+                        <div className="font-semibold">{slot.roomB.student}</div>
+                        <div className="text-sm text-neutral-600">Tutor: {slot.roomB.tutor}</div>
+                      </div>
+                    ) : (
+                      <div className="text-neutral-500">— Unassigned —<div className="mt-2"><button onClick={() => openCreateSchedule('Room B', slot.time)} className="bg-yellow-400 text-white px-3 py-1 rounded">Assign</button></div></div>
+                    )}
+                  </td>
+                  <td className="py-4 px-4">
+                    {slot.roomC ? (
+                      <div>
+                        <div className="font-semibold">{slot.roomC.student}</div>
+                        <div className="text-sm text-neutral-600">Tutor: {slot.roomC.tutor}</div>
+                      </div>
+                    ) : (
+                      <div className="text-neutral-500">— Unassigned —<div className="mt-2"><button onClick={() => openCreateSchedule('Room C', slot.time)} className="bg-yellow-400 text-white px-3 py-1 rounded">Assign</button></div></div>
+                    )}
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      </Card>
+        {showCreateScheduleModal && (
+          <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+            <div className="bg-white rounded-3xl p-8 max-w-2xl w-full">
+              <h3 className="text-2xl font-bold text-neutral-900 mb-4">Create Schedule</h3>
+              <div className="grid md:grid-cols-2 gap-4 mb-4">
+                <div>
+                  <label className="block text-sm font-semibold mb-2">Tutor</label>
+                  <select
+                    value={createScheduleForm.tutorId}
+                    onChange={(e) => setCreateScheduleForm(prev => ({ ...prev, tutorId: e.target.value }))}
+                    className="w-full px-4 py-2 rounded-xl border-2 border-neutral-200 focus:border-primary-500 focus:outline-none"
+                  >
+                    <option value="">— Select Tutor —</option>
+                    {tutors.map(t => (
+                      <option key={t.id} value={t.id}>{t.name}</option>
+                    ))}
+                  </select>
+                </div>
+                <div>
+                  <label className="block text-sm font-semibold mb-2">Room</label>
+                  <select
+                    value={createScheduleForm.room}
+                    onChange={(e) => setCreateScheduleForm(prev => ({ ...prev, room: e.target.value }))}
+                    className="w-full px-4 py-2 rounded-xl border-2 border-neutral-200 focus:border-primary-500 focus:outline-none"
+                  >
+                    <option>Room A</option>
+                    <option>Room B</option>
+                    <option>Room C</option>
+                  </select>
+                </div>
+              </div>
+
+              <div className="mb-4">
+                <label className="block text-sm font-semibold mb-2">Students</label>
+                <div className="border-2 border-neutral-200 rounded-xl p-4 max-h-40 overflow-auto">
+                  {users.map(u => (
+                    <label key={u.id} className="flex items-center gap-3 mb-2">
+                      <input type="checkbox" checked={createScheduleForm.selectedStudentIds.includes(u.id)} onChange={() => toggleStudentSelection(u.id)} />
+                      <span className="text-sm">{u.name} — {u.email}</span>
+                    </label>
+                  ))}
+                </div>
+              </div>
+
+              <div className="mb-4">
+                <label className="block text-sm font-semibold mb-2">Subject & Time</label>
+                <div className="flex items-center gap-3">
+                  <select value={createScheduleForm.subjectsTimes[0].subject} onChange={(e) => updateSubjectRow(0, 'subject', e.target.value)} className="flex-1 px-4 py-2 rounded-xl border-2 border-neutral-200">
+                    <option value="">— Select Subject —</option>
+                    {subjectOptions.map((s, i) => <option key={i} value={s}>{s}</option>)}
+                  </select>
+                  <select value={createScheduleForm.subjectsTimes[0].time} onChange={(e) => updateSubjectRow(0, 'time', e.target.value)} className="w-40 px-4 py-2 rounded-xl border-2 border-neutral-200">
+                    {timeOptions.map((t, i) => <option key={i} value={t}>{t}</option>)}
+                  </select>
+                </div>
+              </div>
+
+              <div className="flex gap-3 mt-6">
+                <button onClick={handleCreateSchedule} className="flex-1 bg-yellow-400 text-white py-3 rounded-xl font-bold">Create</button>
+                <button onClick={closeCreateSchedule} className="flex-1 bg-neutral-200 text-neutral-700 py-3 rounded-xl font-bold">Cancel</button>
+              </div>
+            </div>
+          </div>
+        )}
+    </div>
+  );
+
 
   return (
     <div className="bg-gradient-to-br from-neutral-50 to-neutral-100 min-h-screen">
@@ -874,6 +1168,7 @@ const AdminDashboard = ({ onLogout }) => {
         {activeTab === 'enrollments' && <EnrollmentManagement />}
         {activeTab === 'users' && <Users />}
         {activeTab === 'admins' && <Admins />}
+  {activeTab === 'schedule' && <Schedule />}
         {activeTab === 'tutors' && <Tutors />}
         {activeTab === 'announcements' && (
           <Card>
@@ -973,6 +1268,13 @@ const AdminDashboard = ({ onLogout }) => {
                       <div className="text-sm text-neutral-600">Last changed: Oct 1, 2025</div>
                     </div>
                     <button className="text-primary-600 hover:text-primary-700 font-semibold text-sm">Change</button>
+                  </div>
+                  <div className="flex items-center justify-between p-4 bg-neutral-50 rounded-xl">
+                    <div>
+                      <div className="font-semibold text-neutral-900">Rejected accounts</div>
+                      <div className="text-sm text-neutral-600">View recently rejected user accounts and restore if necessary</div>
+                    </div>
+                    <button className="text-red-600 hover:text-red-700 font-semibold text-sm">View</button>
                   </div>
                 </div>
               </div>
