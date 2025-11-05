@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import logo from '../assets/beebrightlogo.jpg';
 import { LogOut, Home, Brain, BookOpen, TrendingUp, Award } from 'lucide-react';
+import { useAuth } from '../context/AuthContext';
 
 // Sidebar Component (Integrated)
 const Sidebar = ({ activeTab, onTabChange, onLogout, student }) => {
@@ -160,6 +161,7 @@ const Sidebar = ({ activeTab, onTabChange, onLogout, student }) => {
 
 // Main StudentDashboard Component
 const StudentDashboard = ({ onLogout }) => {
+  const { user } = useAuth();
   const [activeTab, setActiveTab] = useState('overview');
   const [aiQuery, setAiQuery] = useState('');
   const [aiResponse, setAiResponse] = useState('');
@@ -325,7 +327,9 @@ const handleAiSubmit = async (e) => {
         <div className="flex items-center gap-3 mb-2">
           <span className="text-5xl animate-bounce">👋</span>
           <h1 className="text-4xl md:text-5xl font-black text-gray-800">
-            Hey there, <span className="bg-gradient-to-r from-purple-600 to-pink-600 bg-clip-text text-transparent">Student!</span>
+            Hey there, <span className="bg-gradient-to-r from-purple-600 to-pink-600 bg-clip-text text-transparent">
+              {user?.firstName || 'Student'}!
+            </span>
           </h1>
         </div>
         <p className="text-xl text-gray-600 ml-16">Ready to learn something awesome today? 🚀</p>
@@ -571,7 +575,7 @@ const handleAiSubmit = async (e) => {
         onTabChange={setActiveTab}
         onLogout={onLogout}
         student={{
-          name: "Alex Johnson",
+          name: `${user?.firstName || ''} ${user?.lastName || ''}`.trim() || 'Student',
           avatar: "👨‍🎓"
         }}
       />

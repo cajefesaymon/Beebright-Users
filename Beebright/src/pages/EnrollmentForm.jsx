@@ -2,7 +2,8 @@ import React, { useState } from 'react';
 
 const EnrollmentForm = ({ onBack, onSuccess }) => {
   const [formData, setFormData] = useState({
-    studentName: '',
+    firstName: '',
+    lastName: '',
     age: '',
     grade: '',
     school: '',
@@ -32,8 +33,8 @@ const EnrollmentForm = ({ onBack, onSuccess }) => {
   setError('');
 
   try {
-    // ADD password to the required fields check
-    if (!formData.studentName || !formData.age || !formData.grade || 
+    // Check all required fields including first and last name
+    if (!formData.firstName || !formData.lastName || !formData.age || !formData.grade || 
         !formData.school || !formData.password || !formData.contactEmail) {
       throw new Error('Please fill in all required fields');
     }
@@ -155,18 +156,33 @@ const EnrollmentForm = ({ onBack, onSuccess }) => {
               </h2>
               
               <div className="space-y-4">
-                <div>
-                  <label className="block text-gray-700 font-semibold mb-2">
-                    Full Name <span className="text-red-500">*</span>
-                  </label>
-                  <input
-                    type="text"
-                    name="studentName"
-                    value={formData.studentName}
-                    onChange={handleChange}
-                    placeholder="Juan Dela Cruz"
-                    className="w-full px-4 py-3 rounded-xl border-2 border-gray-300 focus:border-amber-500 focus:outline-none"
-                  />
+                <div className="grid md:grid-cols-2 gap-4">
+                  <div>
+                    <label className="block text-gray-700 font-semibold mb-2">
+                      First Name <span className="text-red-500">*</span>
+                    </label>
+                    <input
+                      type="text"
+                      name="firstName"
+                      value={formData.firstName}
+                      onChange={handleChange}
+                      placeholder="Juan"
+                      className="w-full px-4 py-3 rounded-xl border-2 border-gray-300 focus:border-amber-500 focus:outline-none"
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-gray-700 font-semibold mb-2">
+                      Last Name <span className="text-red-500">*</span>
+                    </label>
+                    <input
+                      type="text"
+                      name="lastName"
+                      value={formData.lastName}
+                      onChange={handleChange}
+                      placeholder="Dela Cruz"
+                      className="w-full px-4 py-3 rounded-xl border-2 border-gray-300 focus:border-amber-500 focus:outline-none"
+                    />
+                  </div>
                 </div>
 
                 <div className="grid md:grid-cols-2 gap-4">

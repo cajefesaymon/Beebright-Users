@@ -9,7 +9,11 @@ const userSchema = new mongoose.Schema(
 		name: { type: String, required: true },
 		email: { type: String, required: true, unique: true, lowercase: true },
 		password: { type: String, required: true },
-		role: { type: String, enum: ['user', 'admin'], default: 'user' },
+		role: { 
+  type: String, 
+  enum: ['student', 'tutor', 'admin', 'parent'], // <-- Allow all your app's roles
+  default: 'student' // 'student' or 'user' is fine as a default
+},
 		avatar: { type: String },
 	},
 	{ timestamps: true }
