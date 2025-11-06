@@ -73,7 +73,7 @@ const Sidebar = ({ activeTab, onTabChange, onLogout, student }) => {
               <div className="font-bold text-neutral-900 truncate text-lg">{safeStudent.name}</div>
               <div className="text-sm text-neutral-600 flex items-center gap-1">
                 <span className="text-yellow-500">⭐</span>
-                Student Profile
+                Student Profiled
               </div>
             </div>
           </div>
