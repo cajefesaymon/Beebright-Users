@@ -7,7 +7,7 @@ export default function Dashboard() {
   const { user } = useAuth();
 
   return (
-    <Layout>
+    <>
       {/* HEADER */}
       <div className="mb-8">
         <h1 className="text-4xl font-extrabold text-gray-800 flex items-center gap-2">
@@ -39,24 +39,9 @@ export default function Dashboard() {
           </div>
 
           <div className="space-y-4">
-            <ClassCard
-              subject="Math"
-              teacher="Ms. Johnson"
-              time="2:00 PM"
-              color="blue"
-            />
-            <ClassCard
-              subject="Science"
-              teacher="Mr. Smith"
-              time="4:00 PM"
-              color="green"
-            />
-            <ClassCard
-              subject="English"
-              teacher="Ms. Davis"
-              time="6:00 PM"
-              color="purple"
-            />
+            <ClassCard subject="Math" teacher="Ms. Johnson" time="2:00 PM" color="blue" />
+            <ClassCard subject="Science" teacher="Mr. Smith" time="4:00 PM" color="green" />
+            <ClassCard subject="English" teacher="Ms. Davis" time="6:00 PM" color="purple" />
           </div>
         </div>
 
@@ -81,9 +66,10 @@ export default function Dashboard() {
           </button>
         </div>
       </div>
-    </Layout>
+    </>
   );
 }
+
 
 /* -----------------------------
    OVERVIEW CARD COMPONENT

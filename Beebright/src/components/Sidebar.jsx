@@ -7,26 +7,42 @@ import {
   Award,
   Star,
   LogOut,
+  User,
 } from "lucide-react";
 import { useAuth } from "../context/AuthContext";
-
-/**
- * Student Sidebar
- * - Pulls profile info (name, role, avatar) from AuthContext
- * - Matches your reference UI with clean, pastel design
- */
+import { useNavigate, useLocation } from "react-router-dom";
+import logoImg from "../assets/beebrightlogo.jpg";
+import defaultAvatar from "../assets/student-avatar.png";
 
 export default function Sidebar() {
   const { user, logout } = useAuth();
+  const navigate = useNavigate();
+  const location = useLocation();
 
-  const logoImg = "/src/assets/beebrightlogo.jpg";
-  const avatarImg = user?.avatar || "/src/assets/student-avatar.png";
+  const avatarImg = user?.avatar || defaultAvatar;
+
+  const navItems = [
+    { icon: <Home size={18} />, title: "Overview", subtitle: "Your dashboard", path: "/dashboard" },
+    { icon: <Bot size={18} />, title: "AI Tutor", subtitle: "Get instant help", badge: "NEW", path: "/ai-tutor" },
+    { icon: <BookOpen size={18} />, title: "My Classes", subtitle: "View your classes", path: "/classes" },
+    { icon: <BarChart2 size={18} />, title: "My Progress", subtitle: "Track learning", path: "/progress" },
+    { icon: <Award size={18} />, title: "My Badges", subtitle: "Achievements", path: "/badges" },
+    { icon: <User size={18} />, title: "Profile", subtitle: "Change password", path: "/profile" },
+  ];
+
+  const handleLogout = () => {
+    logout();
+    navigate("/login");
+  };
 
   return (
     <aside className="w-64 min-h-screen bg-white border-r px-5 py-6 flex flex-col justify-between">
       <div>
         {/* 🐝 Logo */}
-        <div className="flex items-center gap-3 mb-6">
+        <div
+          className="flex items-center gap-3 mb-6 cursor-pointer"
+          onClick={() => navigate("/dashboard")}
+        >
           <img
             src={logoImg}
             alt="BeeBright"
@@ -50,9 +66,7 @@ export default function Sidebar() {
                 <p className="text-sm font-semibold text-gray-800">
                   {user?.name || "Student"}
                 </p>
-                <div className="flex items-center gap-1">
-                  <Star size={14} className="text-yellow-400" />
-                </div>
+                <Star size={14} className="text-yellow-400" />
               </div>
               <p className="text-[12px] text-gray-500 mt-1">
                 {user?.role
@@ -65,33 +79,17 @@ export default function Sidebar() {
 
         {/* 📚 Navigation */}
         <nav className="space-y-3">
-          <NavItem
-            icon={<Home size={18} />}
-            title="Overview"
-            subtitle="Your learning dashboard"
-            active
-          />
-          <NavItem
-            icon={<Bot size={18} />}
-            title="AI Tutor"
-            subtitle="Get instant help"
-            badge="NEW"
-          />
-          <NavItem
-            icon={<BookOpen size={18} />}
-            title="My Classes"
-            subtitle="View your classes"
-          />
-          <NavItem
-            icon={<BarChart2 size={18} />}
-            title="My Progress"
-            subtitle="Track your learning"
-          />
-          <NavItem
-            icon={<Award size={18} />}
-            title="My Badges"
-            subtitle="Achievements earned"
-          />
+          {navItems.map((item) => (
+            <NavItem
+              key={item.title}
+              icon={item.icon}
+              title={item.title}
+              subtitle={item.subtitle}
+              badge={item.badge}
+              active={location.pathname === item.path}
+              onClick={() => navigate(item.path)}
+            />
+          ))}
         </nav>
       </div>
 
@@ -111,7 +109,7 @@ export default function Sidebar() {
         </div>
 
         <button
-          onClick={logout}
+          onClick={handleLogout}
           className="w-full flex items-center gap-3 text-red-500 hover:text-red-600 font-medium"
         >
           <LogOut size={18} />
@@ -123,18 +121,21 @@ export default function Sidebar() {
 }
 
 /* 🔹 Nav item component */
-function NavItem({ icon, title, subtitle, active = false, badge }) {
+function NavItem({ icon, title, subtitle, active = false, badge, onClick }) {
   return (
     <div
-      className={`flex items-start gap-3 p-3 rounded-xl cursor-pointer transition ${
+      onClick={onClick}
+      className={`flex items-start gap-3 p-3 rounded-xl cursor-pointer transition-all duration-200 ${
         active
           ? "bg-gradient-to-br from-indigo-50 to-pink-50 shadow-sm"
           : "hover:bg-gray-50"
       }`}
     >
       <div
-        className={`w-10 h-10 rounded-lg flex items-center justify-center ${
-          active ? "bg-white" : "bg-indigo-50"
+        className={`w-10 h-10 rounded-lg flex items-center justify-center transition-all duration-200 ${
+          active
+            ? "bg-white text-indigo-600 shadow-inner"
+            : "bg-indigo-50 text-gray-600 hover:text-indigo-500"
         }`}
       >
         {icon}
