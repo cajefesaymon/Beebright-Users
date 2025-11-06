@@ -1,76 +1,70 @@
-import React, { useState } from 'react';
-import { AuthProvider, useAuth } from './context/AuthContext';
-import LandingPage from './pages/LandingPage';
-import Login from './pages/Login';
-import EnrollmentForm from './pages/EnrollmentForm';
-import StudentDashboard from './pages/StudentDashboard';
-import ParentDashboard from './pages/ParentDashboard';
-import TutorDashboard from './pages/TutorDashboard';
-import AdminDashboard from './pages/AdminDashboard';
+import React, { useState } from "react";
+import { AuthProvider, useAuth } from "./context/AuthContext";
+import Navbar from "./components/Navbar";
+
+import LandingPage from "./pages/LandingPage";
+import Login from "./pages/Login";
+import EnrollmentForm from "./pages/EnrollmentForm";
+import StudentDashboard from "./pages/StudentDashboard";
+import ParentDashboard from "./pages/ParentDashboard";
+import TutorDashboard from "./pages/TutorDashboard";
+import AdminDashboard from "./pages/AdminDashboard";
 
 const AppContent = () => {
   const { user, logout } = useAuth();
-  const [currentPage, setCurrentPage] = useState('landing'); // 'landing', 'enroll', 'login'
-  const [enrollmentType, setEnrollmentType] = useState(null); // 'student' or 'parent'
+  const [currentPage, setCurrentPage] = useState("landing");
+  const [enrollmentType, setEnrollmentType] = useState(null);
 
-  // Handle enrollment button clicks from landing page
+  const handleNavigate = (page) => {
+    setCurrentPage(page);
+    if (page !== "enroll") setEnrollmentType(null);
+  };
+
   const handleEnrollment = (type) => {
     setEnrollmentType(type);
-    setCurrentPage('enroll');
+    setCurrentPage("enroll");
   };
 
-  // Handle "Already have account? Login" 
-  const handleGoToLogin = () => {
-    setCurrentPage('login');
-  };
-
-  // Handle back to landing
-  const handleBackToLanding = () => {
-    setCurrentPage('landing');
-    setEnrollmentType(null);
-  };
-
-  // If user is logged in, show appropriate dashboard
+  // Logged in users → dashboards
   if (user) {
     switch (user.role) {
-      case 'student':
+      case "student":
         return <StudentDashboard onLogout={logout} />;
-      case 'parent':
+      case "parent":
         return <ParentDashboard onLogout={logout} />;
-      case 'tutor':
+      case "tutor":
         return <TutorDashboard onLogout={logout} />;
-      case 'admin':
+      case "admin":
         return <AdminDashboard onLogout={logout} />;
       default:
         return <LandingPage onLogin={handleEnrollment} />;
     }
   }
 
-  // Not logged in - show appropriate page
-  switch (currentPage) {
-    case 'enroll':
-      return (
-        <EnrollmentForm 
-          onBack={handleBackToLanding}
+  // Not logged in → show navbar + main pages
+  return (
+    <>
+      <Navbar
+        user={user}
+        onLogout={logout}
+        onNavigate={handleNavigate}
+      />
+
+      {currentPage === "enroll" ? (
+        <EnrollmentForm
+          onBack={() => handleNavigate("landing")}
           enrollmentType={enrollmentType}
         />
-      );
-    
-    case 'login':
-      return (
-        <Login 
-          onBack={handleBackToLanding}
-        />
-      );
-    
-    default:
-      return (
-        <LandingPage 
+      ) : currentPage === "login" ? (
+        <Login onBack={() => handleNavigate("landing")} />
+      ) : (
+        <LandingPage
           onLogin={handleEnrollment}
-          onGoToLogin={handleGoToLogin}
+          onGoToLogin={() => handleNavigate("login")}
         />
-      );
-  }
+      )}
+    </>
+  );
 };
 
 const App = () => {
