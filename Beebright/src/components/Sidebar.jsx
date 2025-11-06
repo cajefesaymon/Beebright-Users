@@ -21,13 +21,22 @@ export default function Sidebar() {
 
   const avatarImg = user?.avatar || defaultAvatar;
 
+  const iconColors = {
+    Home: "text-blue-500",
+    Bot: "text-purple-500",
+    BookOpen: "text-green-500",
+    BarChart2: "text-orange-500",
+    Award: "text-yellow-500",
+    User: "text-pink-500",
+  };
+
   const navItems = [
-    { icon: <Home size={18} />, title: "Overview", subtitle: "Your dashboard", path: "/dashboard" },
-    { icon: <Bot size={18} />, title: "AI Tutor", subtitle: "Get instant help", badge: "NEW", path: "/ai-tutor" },
-    { icon: <BookOpen size={18} />, title: "My Classes", subtitle: "View your classes", path: "/classes" },
-    { icon: <BarChart2 size={18} />, title: "My Progress", subtitle: "Track learning", path: "/progress" },
-    { icon: <Award size={18} />, title: "My Badges", subtitle: "Achievements", path: "/badges" },
-    { icon: <User size={18} />, title: "Profile", subtitle: "Change password", path: "/profile" },
+    { icon: Home, title: "Overview", subtitle: "Your dashboard", path: "/dashboard" },
+    { icon: Bot, title: "AI Tutor", subtitle: "Get instant help", badge: "NEW", path: "/ai-tutor" },
+    { icon: BookOpen, title: "My Classes", subtitle: "View your classes", path: "/classes" },
+    { icon: BarChart2, title: "My Progress", subtitle: "Track learning", path: "/progress" },
+    { icon: Award, title: "My Badges", subtitle: "Achievements", path: "/badges" },
+    { icon: User, title: "Profile", subtitle: "Change password", path: "/profile" },
   ];
 
   const handleLogout = () => {
@@ -78,18 +87,54 @@ export default function Sidebar() {
         </div>
 
         {/* 📚 Navigation */}
-        <nav className="space-y-3">
-          {navItems.map((item) => (
-            <NavItem
-              key={item.title}
-              icon={item.icon}
-              title={item.title}
-              subtitle={item.subtitle}
-              badge={item.badge}
-              active={location.pathname === item.path}
-              onClick={() => navigate(item.path)}
-            />
-          ))}
+        <nav className="space-y-2">
+          {navItems.map((item) => {
+            const isActive = location.pathname === item.path;
+            const Icon = item.icon;
+            const color = iconColors[item.icon.name] || "text-indigo-500";
+
+            return (
+              <div
+                key={item.title}
+                onClick={() => navigate(item.path)}
+                className={`flex items-start gap-3 p-3 rounded-xl cursor-pointer transition-all duration-200 ${
+                  isActive
+                    ? "bg-gradient-to-br from-indigo-50 to-pink-50 shadow-md"
+                    : "hover:bg-gray-50"
+                }`}
+              >
+                <div
+                  className={`w-10 h-10 rounded-lg flex items-center justify-center transition-all duration-300 shadow-sm ${
+                    isActive
+                      ? `bg-white ring-2 ring-offset-2 ring-indigo-300 ${color}`
+                      : `bg-gray-100 ${color} hover:scale-105`
+                  }`}
+                >
+                  <Icon size={18} strokeWidth={2.5} />
+                </div>
+
+                <div className="flex-1">
+                  <div className="flex items-center gap-2">
+                    <span
+                      className={`text-sm font-semibold ${
+                        isActive ? "text-indigo-700" : "text-gray-800"
+                      }`}
+                    >
+                      {item.title}
+                    </span>
+                    {item.badge && (
+                      <span className="text-[10px] bg-pink-100 text-pink-600 px-2 py-0.5 rounded-md font-semibold">
+                        {item.badge}
+                      </span>
+                    )}
+                  </div>
+                  {item.subtitle && (
+                    <p className="text-xs text-gray-500 mt-1">{item.subtitle}</p>
+                  )}
+                </div>
+              </div>
+            );
+          })}
         </nav>
       </div>
 
@@ -110,54 +155,12 @@ export default function Sidebar() {
 
         <button
           onClick={handleLogout}
-          className="w-full flex items-center gap-3 text-red-500 hover:text-red-600 font-medium"
+          className="w-full flex items-center gap-3 text-red-500 hover:text-red-600 font-medium transition-all"
         >
           <LogOut size={18} />
           <span className="text-sm">Logout</span>
         </button>
       </div>
     </aside>
-  );
-}
-
-/* 🔹 Nav item component */
-function NavItem({ icon, title, subtitle, active = false, badge, onClick }) {
-  return (
-    <div
-      onClick={onClick}
-      className={`flex items-start gap-3 p-3 rounded-xl cursor-pointer transition-all duration-200 ${
-        active
-          ? "bg-gradient-to-br from-indigo-50 to-pink-50 shadow-sm"
-          : "hover:bg-gray-50"
-      }`}
-    >
-      <div
-        className={`w-10 h-10 rounded-lg flex items-center justify-center transition-all duration-200 ${
-          active
-            ? "bg-white text-indigo-600 shadow-inner"
-            : "bg-indigo-50 text-gray-600 hover:text-indigo-500"
-        }`}
-      >
-        {icon}
-      </div>
-
-      <div className="flex-1">
-        <div className="flex items-center gap-2">
-          <span
-            className={`text-sm font-semibold ${
-              active ? "text-indigo-700" : "text-gray-800"
-            }`}
-          >
-            {title}
-          </span>
-          {badge && (
-            <span className="text-[10px] bg-pink-100 text-pink-600 px-2 py-0.5 rounded-md font-semibold">
-              {badge}
-            </span>
-          )}
-        </div>
-        {subtitle && <p className="text-xs text-gray-500 mt-1">{subtitle}</p>}
-      </div>
-    </div>
   );
 }
