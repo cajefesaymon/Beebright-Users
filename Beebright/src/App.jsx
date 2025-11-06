@@ -1,5 +1,5 @@
 import React from "react";
-import { Routes, Route, Navigate } from "react-router-dom";
+import { Routes, Route, Navigate, useNavigate } from "react-router-dom";
 import { useAuth } from "./context/AuthContext";
 
 // Pages
@@ -18,6 +18,19 @@ import Badges from "./pages/Badges";
 
 const App = () => {
   const { user } = useAuth();
+  const navigate = useNavigate();
+
+  // Handler for "I'm a Student" button - navigates to enrollment
+  const handleLogin = (userType) => {
+    if (userType === 'student') {
+      navigate('/enroll');
+    }
+  };
+
+  // Handler for "Already have an account? Login" button
+  const handleGoToLogin = () => {
+    navigate('/login');
+  };
 
   return (
     <div className="font-sans bg-gray-50 min-h-screen">
@@ -25,7 +38,15 @@ const App = () => {
         {/* 🌐 Public routes */}
         {!user && (
           <>
-            <Route path="/" element={<LandingPage />} />
+            <Route 
+              path="/" 
+              element={
+                <LandingPage 
+                  onLogin={handleLogin} 
+                  onGoToLogin={handleGoToLogin} 
+                />
+              } 
+            />
             <Route path="/login" element={<Login />} />
             <Route path="/enroll" element={<EnrollmentForm />} />
             {/* Redirect any unknown route to / */}
