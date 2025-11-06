@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import logo from '../assets/beebrightlogo.jpg';
+// import logo from '../assets/beebrightlogo.jpg'; // <-- This line was removed
 import { useAuth } from '../context/AuthContext';
 import { Eye, EyeOff, Mail, Lock, ArrowLeft } from 'lucide-react';
 
@@ -14,40 +14,7 @@ const Login = ({ onBack }) => {
   const [error, setError] = useState('');
 
   // Mock user database - In real app, this would be an API call
-  const mockUsers = {
-    'alex@student.com': { 
-      password: 'student123', 
-      role: 'student', 
-      name: 'Alex Chen', 
-      grade: 'Grade 5', 
-      avatar: '🧒' 
-    },
-    'emma@student.com': { 
-      password: 'student123', 
-      role: 'student', 
-      name: 'Emma Chen', 
-      grade: 'Grade 3', 
-      avatar: '👧' 
-    },
-    'parent@beebright.com': { 
-      password: 'parent123', 
-      role: 'parent', 
-      name: 'Mrs. Chen', 
-      avatar: '👩' 
-    },
-    'tutor@beebright.com': { 
-      password: 'tutor123', 
-      role: 'tutor', 
-      name: 'Ms. Garcia', 
-      avatar: '👩‍🏫' 
-    },
-    'admin@beebright.com': { 
-      password: 'admin123', 
-      role: 'admin', 
-      name: 'Admin User', 
-      avatar: '👨‍💼' 
-    }
-  };
+  // Note: previously this used a mock in-memory user list. We now POST to the backend.
 
   const handleChange = (e) => {
     setFormData({
@@ -61,34 +28,37 @@ const Login = ({ onBack }) => {
     e.preventDefault();
     setIsLoading(true);
     setError('');
+    try {
+      const res = await fetch('http://localhost:5000/api/auth/login', {
+        method: 'POST',
+        credentials: 'include', // receive httpOnly cookie if backend sets it
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email: formData.email, password: formData.password }),
+      });
 
-    // Simulate API call delay
-    setTimeout(() => {
-      const user = mockUsers[formData.email];
+      const data = await res.json().catch(() => ({}));
 
-      if (!user) {
-        setError('Email not found. Please check your email address or contact admin.');
+      if (!res.ok) {
+        // show a helpful message from the backend when available
+        setError(data.message || 'Login failed. Please check your credentials.');
         setIsLoading(false);
         return;
       }
 
-      if (user.password !== formData.password) {
-        setError('Incorrect password. Please try again.');
-        setIsLoading(false);
-        return;
-      }
-
-      // Login successful - redirect based on role
+      // Successful login: backend returns {_id, name, email, role, token}
       login({
-        email: formData.email,
-        role: user.role,
-        name: user.name,
-        grade: user.grade,
-        avatar: user.avatar
+        email: data.email,
+        role: data.role,
+        name: data.name,
+        token: data.token,
       });
 
       setIsLoading(false);
-    }, 1000);
+    } catch (err) {
+      console.error('Login error:', err);
+      setError('Unable to contact server. Please try again later.');
+      setIsLoading(false);
+    }
   };
 
   return (

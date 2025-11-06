@@ -1,6 +1,7 @@
 import React from 'react';
 import Navbar from '../components/Navbar';
 import logo from '../assets/beebrightlogo.jpg';
+import { useAuth } from '../context/AuthContext';
 
 const LandingPage = ({ onLogin, onGoToLogin }) => {
   const features = [
