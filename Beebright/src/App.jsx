@@ -34,11 +34,9 @@ const AppContent = () => {
     );
   }
 
-  // 🧭 Not logged in → show navbar + main pages
+  // 🧭 Not logged in → show main pages (NO duplicate navbar)
   return (
     <>
-      <Navbar user={user} onLogout={logout} onNavigate={handleNavigate} />
-
       {currentPage === "enroll" ? (
         <EnrollmentForm
           onBack={() => handleNavigate("landing")}
@@ -59,7 +57,7 @@ const AppContent = () => {
 const App = () => {
   return (
     <AuthProvider>
-      <div className="font-sans">
+      <div className="font-sans bg-gray-50 min-h-screen">
         <AppContent />
       </div>
     </AuthProvider>

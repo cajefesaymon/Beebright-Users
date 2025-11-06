@@ -1,10 +1,11 @@
 import React, { useState } from 'react';
-// import logo from '../assets/beebrightlogo.jpg'; // <-- This line was removed
 import { useAuth } from '../context/AuthContext';
+import { useNavigate } from 'react-router-dom'; // ✅ added
 import { Eye, EyeOff, Mail, Lock, ArrowLeft } from 'lucide-react';
 
 const Login = ({ onBack }) => {
   const { login } = useAuth();
+  const navigate = useNavigate(); // ✅ added
   const [formData, setFormData] = useState({
     email: '',
     password: ''
@@ -13,45 +14,48 @@ const Login = ({ onBack }) => {
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState('');
 
-  // Mock user database - In real app, this would be an API call
-  // Note: previously this used a mock in-memory user list. We now POST to the backend.
-
   const handleChange = (e) => {
     setFormData({
       ...formData,
       [e.target.name]: e.target.value
     });
-    setError(''); // Clear error when user types
+    setError('');
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     setIsLoading(true);
     setError('');
+
     try {
       const res = await fetch('http://localhost:5000/api/auth/login', {
         method: 'POST',
-        credentials: 'include', // receive httpOnly cookie if backend sets it
+        credentials: 'include',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ email: formData.email, password: formData.password }),
+        body: JSON.stringify({
+          email: formData.email,
+          password: formData.password
+        }),
       });
 
       const data = await res.json().catch(() => ({}));
 
       if (!res.ok) {
-        // show a helpful message from the backend when available
         setError(data.message || 'Login failed. Please check your credentials.');
         setIsLoading(false);
         return;
       }
 
-      // Successful login: backend returns {_id, name, email, role, token}
+      // ✅ Save user data in context + localStorage
       login({
         email: data.email,
         role: data.role,
         name: data.name,
         token: data.token,
       });
+
+      // ✅ Navigate to dashboard
+      navigate('/dashboard'); // <-- added
 
       setIsLoading(false);
     } catch (err) {
@@ -77,7 +81,6 @@ const Login = ({ onBack }) => {
 
         {/* Login Card */}
         <div className="bg-white rounded-3xl shadow-2xl p-8 border-2 border-neutral-100">
-          {/* Logo & Title */}
           <div className="text-center mb-8">
             <div className="text-6xl mb-4 animate-float">🐝</div>
             <h1 className="font-display font-bold text-3xl text-neutral-900 mb-2">
@@ -86,7 +89,6 @@ const Login = ({ onBack }) => {
             <p className="text-neutral-600">Login to access your dashboard</p>
           </div>
 
-          {/* Demo Credentials Info */}
           <div className="bg-blue-50 border-2 border-blue-200 rounded-xl p-4 mb-6">
             <div className="font-semibold text-blue-900 mb-2">🔐 Demo Accounts:</div>
             <div className="text-sm text-blue-800 space-y-1">
@@ -97,16 +99,13 @@ const Login = ({ onBack }) => {
             </div>
           </div>
 
-          {/* Error Message */}
           {error && (
             <div className="bg-red-50 border-2 border-red-200 rounded-xl p-4 mb-6 text-red-700">
               {error}
             </div>
           )}
 
-          {/* Login Form */}
           <form onSubmit={handleSubmit} className="space-y-4">
-            {/* Email Input */}
             <div>
               <label className="block text-sm font-semibold text-neutral-700 mb-2">
                 Email Address
@@ -125,7 +124,6 @@ const Login = ({ onBack }) => {
               </div>
             </div>
 
-            {/* Password Input */}
             <div>
               <label className="block text-sm font-semibold text-neutral-700 mb-2">
                 Password
@@ -151,7 +149,6 @@ const Login = ({ onBack }) => {
               </div>
             </div>
 
-            {/* Remember Me & Forgot Password */}
             <div className="flex items-center justify-between">
               <label className="flex items-center gap-2 cursor-pointer">
                 <input type="checkbox" className="w-4 h-4 rounded border-neutral-300" />
@@ -162,7 +159,6 @@ const Login = ({ onBack }) => {
               </a>
             </div>
 
-            {/* Login Button */}
             <button
               type="submit"
               disabled={isLoading}
@@ -179,7 +175,6 @@ const Login = ({ onBack }) => {
             </button>
           </form>
 
-          {/* CHANGED: No signup, only enrollment link */}
           <div className="mt-6 text-center">
             <p className="text-neutral-600 text-sm">
               Don't have an account yet?{' '}
@@ -196,7 +191,6 @@ const Login = ({ onBack }) => {
           </div>
         </div>
 
-        {/* Security Notice */}
         <div className="mt-6 text-center text-sm text-neutral-500">
           🔒 Your data is protected with industry-standard encryption
         </div>

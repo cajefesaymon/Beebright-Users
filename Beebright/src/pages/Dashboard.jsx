@@ -1,22 +1,28 @@
 import React from "react";
 import Layout from "../components/Layout";
 import { Calendar, Trophy } from "lucide-react";
+import { useAuth } from "../context/AuthContext";
 
 export default function Dashboard() {
+  const { user } = useAuth();
+
   return (
     <Layout>
       {/* HEADER */}
-      <div className="mb-6">
+      <div className="mb-8">
         <h1 className="text-4xl font-extrabold text-gray-800 flex items-center gap-2">
-          👋 Hey there, <span className="text-pink-600">Student!</span>
+          👋 Hey there,{" "}
+          <span className="text-pink-600">
+            {user?.name ? `${user.name}!` : "Student!"}
+          </span>
         </h1>
-        <p className="text-gray-500 mt-1">
+        <p className="text-gray-500 mt-1 text-base">
           Ready to learn something awesome today? 🚀
         </p>
       </div>
 
       {/* OVERVIEW CARDS */}
-      <div className="grid grid-cols-4 gap-6 mb-8">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 mb-10">
         <OverviewCard label="Total Classes" value="12" color="blue" />
         <OverviewCard label="Completed" value="8" color="green" />
         <OverviewCard label="Hours Studied" value="24" color="purple" />
@@ -24,9 +30,9 @@ export default function Dashboard() {
       </div>
 
       {/* MAIN SECTION */}
-      <div className="grid grid-cols-3 gap-6">
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
         {/* TODAY'S CLASSES */}
-        <div className="col-span-2 bg-white rounded-2xl p-6 border-2 border-indigo-100 shadow-sm">
+        <div className="lg:col-span-2 bg-white rounded-2xl p-6 border border-indigo-100 shadow-sm">
           <div className="flex items-center gap-2 mb-4">
             <Calendar className="text-indigo-600" size={20} />
             <h3 className="text-lg font-bold text-gray-800">Today's Classes</h3>
@@ -55,7 +61,7 @@ export default function Dashboard() {
         </div>
 
         {/* BADGES */}
-        <div className="bg-white border-2 border-yellow-200 rounded-2xl p-6 shadow-sm">
+        <div className="bg-white border border-yellow-200 rounded-2xl p-6 shadow-sm">
           <div className="flex items-center gap-2 mb-4">
             <Trophy className="text-yellow-500" size={22} />
             <h3 className="text-lg font-bold text-gray-800">
@@ -64,10 +70,10 @@ export default function Dashboard() {
           </div>
 
           <div className="grid grid-cols-2 gap-3 mb-4">
-            <BadgeCard name="Math Whiz" emoji="🧮" color="yellow" />
-            <BadgeCard name="Science Star" emoji="🔬" color="green" />
-            <BadgeCard name="Reading Pro" emoji="📖" color="purple" />
-            <BadgeCard name="Perfect Attendance" emoji="🏅" color="orange" />
+            <BadgeCard name="Math Whiz" emoji="🧮" />
+            <BadgeCard name="Science Star" emoji="🔬" />
+            <BadgeCard name="Reading Pro" emoji="📖" />
+            <BadgeCard name="Perfect Attendance" emoji="🏅" />
           </div>
 
           <button className="w-full bg-yellow-400 text-gray-800 font-semibold rounded-xl py-2 hover:bg-yellow-300 transition">
@@ -79,7 +85,9 @@ export default function Dashboard() {
   );
 }
 
-/* OVERVIEW CARD */
+/* -----------------------------
+   OVERVIEW CARD COMPONENT
+------------------------------ */
 function OverviewCard({ label, value, color }) {
   const colors = {
     blue: "from-blue-50 to-blue-100 text-blue-600",
@@ -89,15 +97,17 @@ function OverviewCard({ label, value, color }) {
   };
   return (
     <div
-      className={`bg-gradient-to-br ${colors[color]} p-5 rounded-2xl shadow-sm border`}
+      className={`bg-gradient-to-br ${colors[color]} p-6 rounded-2xl shadow-sm border border-gray-100`}
     >
-      <div className="text-4xl font-bold mb-2 text-gray-800">{value}</div>
+      <div className="text-4xl font-extrabold mb-2 text-gray-800">{value}</div>
       <p className="text-gray-700 font-medium">{label}</p>
     </div>
   );
 }
 
-/* CLASS CARD */
+/* -----------------------------
+   CLASS CARD COMPONENT
+------------------------------ */
 function ClassCard({ subject, teacher, time, color }) {
   const colors = {
     blue: "border-blue-300 bg-blue-50",
@@ -106,7 +116,7 @@ function ClassCard({ subject, teacher, time, color }) {
   };
   return (
     <div
-      className={`flex justify-between items-center border-2 ${colors[color]} rounded-xl p-4`}
+      className={`flex justify-between items-center border ${colors[color]} rounded-xl p-4 transition hover:shadow-md`}
     >
       <div>
         <p className="font-bold text-gray-800">{subject}</p>
@@ -122,12 +132,14 @@ function ClassCard({ subject, teacher, time, color }) {
   );
 }
 
-/* BADGE CARD */
+/* -----------------------------
+   BADGE CARD COMPONENT
+------------------------------ */
 function BadgeCard({ name, emoji }) {
   return (
-    <div className="bg-yellow-50 rounded-xl shadow-sm flex flex-col items-center justify-center py-4">
+    <div className="bg-yellow-50 border border-yellow-100 rounded-xl shadow-sm flex flex-col items-center justify-center py-4 hover:shadow-md transition">
       <div className="text-3xl mb-2">{emoji}</div>
-      <p className="text-sm font-semibold text-gray-700">{name}</p>
+      <p className="text-sm font-semibold text-gray-700 text-center">{name}</p>
     </div>
   );
 }

@@ -1,4 +1,3 @@
-// src/components/Sidebar.jsx
 import React from "react";
 import {
   Home,
@@ -9,26 +8,24 @@ import {
   Star,
   LogOut,
 } from "lucide-react";
+import { useAuth } from "../context/AuthContext";
 
 /**
- * Sidebar designed to match provided screenshot:
- * - narrow column
- * - BeeBright logo + small student profile card
- * - nav items with small pastel icon bubbles and small descriptions
- * - Today's progress card at bottom
- * - logout in red
- *
- * Replace paths for logoImg and avatarImg with your assets.
+ * Student Sidebar
+ * - Pulls profile info (name, role, avatar) from AuthContext
+ * - Matches your reference UI with clean, pastel design
  */
 
-export default function Sidebar({ onLogout }) {
-  const logoImg = "/assets/bee-logo.png"; // replace with your logo
-  const avatarImg = "/assets/student-avatar.png"; // replace with your avatar
+export default function Sidebar() {
+  const { user, logout } = useAuth();
+
+  const logoImg = "/src/assets/beebrightlogo.jpg";
+  const avatarImg = user?.avatar || "/src/assets/student-avatar.png";
 
   return (
     <aside className="w-64 min-h-screen bg-white border-r px-5 py-6 flex flex-col justify-between">
       <div>
-        {/* Logo */}
+        {/* 🐝 Logo */}
         <div className="flex items-center gap-3 mb-6">
           <img
             src={logoImg}
@@ -40,7 +37,7 @@ export default function Sidebar({ onLogout }) {
           </h1>
         </div>
 
-        {/* Profile Card */}
+        {/* 👤 Profile Card */}
         <div className="bg-gradient-to-br from-indigo-50 to-pink-50 rounded-2xl p-4 mb-6 shadow-sm">
           <div className="flex items-center gap-3">
             <img
@@ -50,17 +47,23 @@ export default function Sidebar({ onLogout }) {
             />
             <div className="flex-1">
               <div className="flex items-center justify-between">
-                <p className="text-sm font-semibold text-gray-800">Student</p>
+                <p className="text-sm font-semibold text-gray-800">
+                  {user?.name || "Student"}
+                </p>
                 <div className="flex items-center gap-1">
                   <Star size={14} className="text-yellow-400" />
                 </div>
               </div>
-              <p className="text-[12px] text-gray-500 mt-1">Student Profiled</p>
+              <p className="text-[12px] text-gray-500 mt-1">
+                {user?.role
+                  ? user.role.charAt(0).toUpperCase() + user.role.slice(1)
+                  : "Student Profile"}
+              </p>
             </div>
           </div>
         </div>
 
-        {/* Nav links */}
+        {/* 📚 Navigation */}
         <nav className="space-y-3">
           <NavItem
             icon={<Home size={18} />}
@@ -92,22 +95,23 @@ export default function Sidebar({ onLogout }) {
         </nav>
       </div>
 
-      {/* Bottom area */}
+      {/* 📊 Bottom Progress + Logout */}
       <div>
-        {/* Today's Progress */}
         <div className="bg-yellow-50 border border-yellow-100 rounded-2xl p-3 mb-4">
           <div className="flex items-center justify-between mb-1">
             <p className="text-xs text-gray-500">Today's Progress</p>
             <p className="text-xs font-semibold text-gray-700">2/3 classes</p>
           </div>
           <div className="w-full h-2 bg-gray-200 rounded-full overflow-hidden">
-            <div className="h-2 bg-yellow-400 rounded-full" style={{ width: "66%" }} />
+            <div
+              className="h-2 bg-yellow-400 rounded-full"
+              style={{ width: "66%" }}
+            />
           </div>
         </div>
 
-        {/* Logout row */}
         <button
-          onClick={onLogout}
+          onClick={logout}
           className="w-full flex items-center gap-3 text-red-500 hover:text-red-600 font-medium"
         >
           <LogOut size={18} />
@@ -118,7 +122,7 @@ export default function Sidebar({ onLogout }) {
   );
 }
 
-/* Small nav row component that closely matches the visual style in your screenshot */
+/* 🔹 Nav item component */
 function NavItem({ icon, title, subtitle, active = false, badge }) {
   return (
     <div
@@ -128,7 +132,6 @@ function NavItem({ icon, title, subtitle, active = false, badge }) {
           : "hover:bg-gray-50"
       }`}
     >
-      {/* icon bubble */}
       <div
         className={`w-10 h-10 rounded-lg flex items-center justify-center ${
           active ? "bg-white" : "bg-indigo-50"
@@ -137,10 +140,13 @@ function NavItem({ icon, title, subtitle, active = false, badge }) {
         {icon}
       </div>
 
-      {/* text */}
       <div className="flex-1">
         <div className="flex items-center gap-2">
-          <span className={`text-sm font-semibold ${active ? "text-indigo-700" : "text-gray-800"}`}>
+          <span
+            className={`text-sm font-semibold ${
+              active ? "text-indigo-700" : "text-gray-800"
+            }`}
+          >
             {title}
           </span>
           {badge && (
