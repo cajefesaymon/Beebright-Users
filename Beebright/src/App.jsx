@@ -2,13 +2,11 @@ import React, { useState } from "react";
 import { AuthProvider, useAuth } from "./context/AuthContext";
 import Navbar from "./components/Navbar";
 
+// Pages
 import LandingPage from "./pages/LandingPage";
 import Login from "./pages/Login";
 import EnrollmentForm from "./pages/EnrollmentForm";
-import StudentDashboard from "./pages/StudentDashboard";
-import ParentDashboard from "./pages/ParentDashboard";
-import TutorDashboard from "./pages/TutorDashboard";
-import AdminDashboard from "./pages/AdminDashboard";
+import Dashboard from "./pages/Dashboard"; // ✅ student dashboard only
 
 const AppContent = () => {
   const { user, logout } = useAuth();
@@ -25,30 +23,21 @@ const AppContent = () => {
     setCurrentPage("enroll");
   };
 
-  // Logged in users → dashboards
-  if (user) {
-    switch (user.role) {
-      case "student":
-        return <StudentDashboard onLogout={logout} />;
-      case "parent":
-        return <ParentDashboard onLogout={logout} />;
-      case "tutor":
-        return <TutorDashboard onLogout={logout} />;
-      case "admin":
-        return <AdminDashboard onLogout={logout} />;
-      default:
-        return <LandingPage onLogin={handleEnrollment} />;
-    }
+  // ✅ If logged in as student → show Dashboard
+  if (user && user.role === "student") {
+    return (
+      <Dashboard
+        onLogout={logout}
+        studentName={user.name}
+        studentData={user.data}
+      />
+    );
   }
 
-  // Not logged in → show navbar + main pages
+  // 🧭 Not logged in → show navbar + main pages
   return (
     <>
-      <Navbar
-        user={user}
-        onLogout={logout}
-        onNavigate={handleNavigate}
-      />
+      <Navbar user={user} onLogout={logout} onNavigate={handleNavigate} />
 
       {currentPage === "enroll" ? (
         <EnrollmentForm

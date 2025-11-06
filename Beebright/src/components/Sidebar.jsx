@@ -1,103 +1,156 @@
-import React, { useState } from 'react';
-import { LogOut } from 'lucide-react';
-import logo from '../assets/beebrightlogo.jpg'; // adjust path if needed
+// src/components/Sidebar.jsx
+import React from "react";
+import {
+  Home,
+  Bot,
+  BookOpen,
+  BarChart2,
+  Award,
+  Star,
+  LogOut,
+} from "lucide-react";
 
-const Sidebar = ({ user, menuItems, activeTab, setActiveTab, onLogout }) => {
-  const [showConfirm, setShowConfirm] = useState(false);
+/**
+ * Sidebar designed to match provided screenshot:
+ * - narrow column
+ * - BeeBright logo + small student profile card
+ * - nav items with small pastel icon bubbles and small descriptions
+ * - Today's progress card at bottom
+ * - logout in red
+ *
+ * Replace paths for logoImg and avatarImg with your assets.
+ */
 
-  const safeUser = {
-    avatar: user?.avatar || '👤',
-    name: user?.name || 'User',
-    role: user?.role || 'guest'
-  };
-
-  const safeMenuItems = menuItems || [];
-
-  const handleConfirmLogout = () => {
-    setShowConfirm(false);
-    onLogout(); // Call your actual logout function
-  };
+export default function Sidebar({ onLogout }) {
+  const logoImg = "/assets/bee-logo.png"; // replace with your logo
+  const avatarImg = "/assets/student-avatar.png"; // replace with your avatar
 
   return (
-    <div className="bg-white h-screen w-64 fixed left-0 top-0 shadow-lg border-r-2 border-neutral-100">
-      {/* Logo & User Info */}
-      <div className="p-6 border-b-2 border-neutral-100">
-        <div className="flex items-center gap-3 mb-4">
-          <img src={logo} alt="BeeBright" className="w-12 h-12 object-contain animate-float" />
-          <span className="font-display font-bold text-2xl bg-gradient-to-r from-primary-500 to-secondary-500 bg-clip-text text-transparent">
+    <aside className="w-64 min-h-screen bg-white border-r px-5 py-6 flex flex-col justify-between">
+      <div>
+        {/* Logo */}
+        <div className="flex items-center gap-3 mb-6">
+          <img
+            src={logoImg}
+            alt="BeeBright"
+            className="w-10 h-10 rounded-md shadow-sm object-cover"
+          />
+          <h1 className="text-2xl font-extrabold tracking-tight text-indigo-500">
             BeeBright
-          </span>
+          </h1>
         </div>
-        <div className="bg-gradient-to-r from-primary-50 to-secondary-50 p-3 rounded-2xl">
+
+        {/* Profile Card */}
+        <div className="bg-gradient-to-br from-indigo-50 to-pink-50 rounded-2xl p-4 mb-6 shadow-sm">
           <div className="flex items-center gap-3">
-            <div className="text-3xl">{safeUser.avatar}</div>
-            <div>
-              <div className="font-bold text-neutral-900">{safeUser.name}</div>
-              <div className="text-sm text-neutral-600 capitalize">{safeUser.role}</div>
+            <img
+              src={avatarImg}
+              alt="Student"
+              className="w-12 h-12 rounded-md object-cover border border-white shadow-sm"
+            />
+            <div className="flex-1">
+              <div className="flex items-center justify-between">
+                <p className="text-sm font-semibold text-gray-800">Student</p>
+                <div className="flex items-center gap-1">
+                  <Star size={14} className="text-yellow-400" />
+                </div>
+              </div>
+              <p className="text-[12px] text-gray-500 mt-1">Student Profiled</p>
             </div>
           </div>
         </div>
+
+        {/* Nav links */}
+        <nav className="space-y-3">
+          <NavItem
+            icon={<Home size={18} />}
+            title="Overview"
+            subtitle="Your learning dashboard"
+            active
+          />
+          <NavItem
+            icon={<Bot size={18} />}
+            title="AI Tutor"
+            subtitle="Get instant help"
+            badge="NEW"
+          />
+          <NavItem
+            icon={<BookOpen size={18} />}
+            title="My Classes"
+            subtitle="View your classes"
+          />
+          <NavItem
+            icon={<BarChart2 size={18} />}
+            title="My Progress"
+            subtitle="Track your learning"
+          />
+          <NavItem
+            icon={<Award size={18} />}
+            title="My Badges"
+            subtitle="Achievements earned"
+          />
+        </nav>
       </div>
 
-      {/* Menu Items */}
-      <nav className="p-4">
-        {safeMenuItems.map((item) => (
-          <button
-            key={item.id}
-            onClick={() => setActiveTab(item.id)}
-            className={`w-full flex items-center gap-3 p-3 rounded-xl mb-2 transition ${
-              activeTab === item.id
-                ? 'bg-gradient-to-r from-primary-100 to-secondary-100 text-primary-700 font-semibold'
-                : 'text-neutral-600 hover:bg-neutral-50'
-            }`}
-          >
-            <item.icon className={item.color} size={20} />
-            <span className="flex-1 text-left">{item.label}</span>
-            {item.badge && item.badge > 0 && (
-              <span className="bg-red-500 text-white text-xs font-bold px-2 py-1 rounded-full">
-                {item.badge}
-              </span>
-            )}
-          </button>
-        ))}
-      </nav>
+      {/* Bottom area */}
+      <div>
+        {/* Today's Progress */}
+        <div className="bg-yellow-50 border border-yellow-100 rounded-2xl p-3 mb-4">
+          <div className="flex items-center justify-between mb-1">
+            <p className="text-xs text-gray-500">Today's Progress</p>
+            <p className="text-xs font-semibold text-gray-700">2/3 classes</p>
+          </div>
+          <div className="w-full h-2 bg-gray-200 rounded-full overflow-hidden">
+            <div className="h-2 bg-yellow-400 rounded-full" style={{ width: "66%" }} />
+          </div>
+        </div>
 
-      {/* Logout Button */}
-      <div className="absolute bottom-4 left-4 right-4">
+        {/* Logout row */}
         <button
-          onClick={() => setShowConfirm(true)}
-          className="w-full flex items-center gap-3 p-3 rounded-xl text-red-600 hover:bg-red-50 transition font-semibold"
+          onClick={onLogout}
+          className="w-full flex items-center gap-3 text-red-500 hover:text-red-600 font-medium"
         >
-          <LogOut size={20} />
-          <span>Logout</span>
+          <LogOut size={18} />
+          <span className="text-sm">Logout</span>
         </button>
       </div>
+    </aside>
+  );
+}
 
-      {/* Confirmation Modal */}
-      {showConfirm && (
-        <div className="fixed inset-0 bg-black bg-opacity-40 flex items-center justify-center z-50">
-          <div className="bg-white p-6 rounded-2xl shadow-lg text-center w-80">
-            <h2 className="text-lg font-semibold mb-4 text-gray-800">Confirm Logout</h2>
-            <p className="text-gray-600 mb-6">Are you sure you want to log out?</p>
-            <div className="flex justify-center gap-4">
-              <button
-                onClick={handleConfirmLogout}
-                className="bg-red-500 text-white px-4 py-2 rounded-lg hover:bg-red-600 transition"
-              >
-                Yes, Logout
-              </button>
-              <button
-                onClick={() => setShowConfirm(false)}
-                className="bg-gray-300 px-4 py-2 rounded-lg hover:bg-gray-400 transition"
-              >
-                Cancel
-              </button>
-            </div>
-          </div>
+/* Small nav row component that closely matches the visual style in your screenshot */
+function NavItem({ icon, title, subtitle, active = false, badge }) {
+  return (
+    <div
+      className={`flex items-start gap-3 p-3 rounded-xl cursor-pointer transition ${
+        active
+          ? "bg-gradient-to-br from-indigo-50 to-pink-50 shadow-sm"
+          : "hover:bg-gray-50"
+      }`}
+    >
+      {/* icon bubble */}
+      <div
+        className={`w-10 h-10 rounded-lg flex items-center justify-center ${
+          active ? "bg-white" : "bg-indigo-50"
+        }`}
+      >
+        {icon}
+      </div>
+
+      {/* text */}
+      <div className="flex-1">
+        <div className="flex items-center gap-2">
+          <span className={`text-sm font-semibold ${active ? "text-indigo-700" : "text-gray-800"}`}>
+            {title}
+          </span>
+          {badge && (
+            <span className="text-[10px] bg-pink-100 text-pink-600 px-2 py-0.5 rounded-md font-semibold">
+              {badge}
+            </span>
+          )}
         </div>
-      )}
+        {subtitle && <p className="text-xs text-gray-500 mt-1">{subtitle}</p>}
+      </div>
     </div>
   );
-};
-
-export default Sidebar;
+}
