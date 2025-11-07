@@ -47,12 +47,16 @@ const Login = ({ onBack }) => {
       }
 
       // ✅ Save user data in context + localStorage
-      login({
-        email: data.email,
-        role: data.role,
-        name: data.name,
-        token: data.token,
-      });
+      // ✅ Save user data in context + localStorage
+login({
+  _id: data._id,        // ✅ ADD THIS LINE
+  email: data.email,
+  role: data.role,
+  name: data.name,
+  firstName: data.firstName,  // ✅ ADD THIS (your backend sends it)
+  lastName: data.lastName,    // ✅ ADD THIS (your backend sends it)
+  token: data.token,
+});
 
       // ✅ Navigate to dashboard
       navigate('/dashboard'); // <-- added

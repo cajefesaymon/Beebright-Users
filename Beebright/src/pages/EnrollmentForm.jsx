@@ -243,22 +243,7 @@ const EnrollmentForm = ({ onBack, onSuccess }) => {
                   />
                 </div>
 
-                <div>
-                  <label className="block text-gray-700 font-semibold mb-2">
-                    Password <span className="text-red-500">*</span>
-                  </label>
-                  <input
-                    type="password"
-                    name="password"
-                    value={formData.password}
-                    onChange={handleChange}
-                    placeholder="Choose a secure password"
-                    className="w-full px-4 py-3 rounded-xl border-2 border-gray-300 focus:border-amber-500 focus:outline-none"
-                  />
-                  <p className="text-sm text-gray-500 mt-1">
-                    At least 8 characters long
-                  </p>
-                </div>
+                
               </div>
             </div>
 
